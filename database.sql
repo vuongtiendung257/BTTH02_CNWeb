@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 CREATE DATABASE QLSV;
 GO
 USE QLSV;
@@ -346,3 +347,6 @@ INSERT INTO DIEMSV VALUES
 -- SV16 – NN2
 (N'SV16', N'TA',   1, 5.0),
 (N'SV16', N'KTDN', 1, 7.0);
+=======
+create database CompanyDB;
+>>>>>>> 6a14c9bd7a7fb4c2dc9f4b1f14e196ecfa73f3fa
