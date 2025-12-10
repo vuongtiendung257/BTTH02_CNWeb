@@ -250,3 +250,5 @@ INSERT INTO materials (lesson_id, filename, file_path, file_type) VALUES
 (11, 'seo_checklist_2025.pdf', 'assets/uploads/materials/seo_checklist.pdf', 'pdf'),
 (19, 'docker_basics.pdf', 'assets/uploads/materials/docker_basics.pdf', 'pdf');
 
+-- Bật lại kiểm tra khóa ngoại
+SET FOREIGN_KEY_CHECKS = 1;
