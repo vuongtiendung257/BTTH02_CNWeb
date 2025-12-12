@@ -1,352 +1,254 @@
-<<<<<<< HEAD
-CREATE DATABASE QLSV;
-GO
-USE QLSV;
-GO
+-- ==========================================
+-- TẠO DATABASE
+-- ==========================================
+CREATE DATABASE IF NOT EXISTS onlinecourse
+CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE onlinecourse;
 
-CREATE TABLE KHOA (
-    Makh   NVARCHAR(10) PRIMARY KEY,
-    Vpkh   NVARCHAR(100)
+-- ==========================================
+-- 1. Bảng users
+-- ==========================================
+CREATE TABLE users (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(255) UNIQUE NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    fullname VARCHAR(255) NOT NULL,
+    role INT NOT NULL DEFAULT 0,                    -- 0: học viên, 1: giảng viên, 2: admin
+    status TINYINT DEFAULT 1 COMMENT '1: hoạt động, 0: bị khóa',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
-GO
 
-CREATE TABLE LOP (
-    Malop  NVARCHAR(10) PRIMARY KEY,
-    Makh   NVARCHAR(10),
-    FOREIGN KEY (Makh) REFERENCES KHOA(Makh)
-        ON UPDATE CASCADE ON DELETE NO ACTION
+-- ==========================================
+-- 2. Bảng categories
+-- ==========================================
+CREATE TABLE categories (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
-GO
 
-CREATE TABLE SINHVIEN (
-    Masv   NVARCHAR(10) PRIMARY KEY,
-    Hosv   NVARCHAR(50),
-    Tensv  NVARCHAR(30),
-    Nssv   DATE,
-    Dcsv   NVARCHAR(200),
-    Loptr  BIT,
-    Malop  NVARCHAR(10),
-    FOREIGN KEY (Malop) REFERENCES LOP(Malop)
-        ON UPDATE CASCADE ON DELETE NO ACTION
+-- ==========================================
+-- 3. Bảng courses
+-- ==========================================
+CREATE TABLE courses (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    instructor_id INT NOT NULL,
+    category_id INT NOT NULL,
+    price DECIMAL(10,2) DEFAULT 0.00,
+    duration_weeks INT DEFAULT 0,
+    level VARCHAR(50) DEFAULT 'Beginner',
+    image VARCHAR(255) DEFAULT NULL,
+    status VARCHAR(50) DEFAULT 'pending' COMMENT 'draft, pending, approved',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (instructor_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
 );
-GO
 
-CREATE TABLE MONHOC (
-    Mamh   NVARCHAR(10) PRIMARY KEY,
-    Tenmh  NVARCHAR(100),
-    LT     INT,
-    TH     INT
+-- ==========================================
+-- 4. Bảng enrollments
+-- ==========================================
+CREATE TABLE enrollments (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    course_id INT NOT NULL,
+    student_id INT NOT NULL,
+    enrolled_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(50) DEFAULT 'active',
+    progress INT DEFAULT 0,
+    FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
+    FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_enrollment (course_id, student_id)
 );
-GO
 
-CREATE TABLE CTHOC (
-    Malop  NVARCHAR(10),
-    HK     INT,
-    Mamh   NVARCHAR(10),
-    PRIMARY KEY (Malop, HK, Mamh),
-    FOREIGN KEY (Malop) REFERENCES LOP(Malop)
-        ON UPDATE CASCADE ON DELETE NO ACTION,
-    FOREIGN KEY (Mamh) REFERENCES MONHOC(Mamh)
-        ON UPDATE CASCADE ON DELETE NO ACTION
+-- ==========================================
+-- 5. Bảng lessons
+-- ==========================================
+CREATE TABLE lessons (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    course_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    content LONGTEXT,
+    video_url VARCHAR(255),
+    order_num INT NOT NULL DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
 );
-GO
 
-CREATE TABLE DIEMSV (
-    Masv   NVARCHAR(10),
-    Mamh   NVARCHAR(10),
-    Lan    INT,
-    Diem   FLOAT,
-    PRIMARY KEY (Masv, Mamh, Lan),
-    FOREIGN KEY (Masv) REFERENCES SINHVIEN(Masv)
-        ON UPDATE CASCADE ON DELETE NO ACTION,
-    FOREIGN KEY (Mamh) REFERENCES MONHOC(Mamh)
-        ON UPDATE CASCADE ON DELETE NO ACTION
+-- ==========================================
+-- 6. Bảng materials
+-- ==========================================
+CREATE TABLE materials (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    lesson_id INT NOT NULL,
+    filename VARCHAR(255) NOT NULL,
+    file_path VARCHAR(255) NOT NULL,
+    file_type VARCHAR(50) NOT NULL,
+    uploaded_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (lesson_id) REFERENCES lessons(id) ON DELETE CASCADE
 );
-GO
 
+-- ==========================================
+-- RESET DATA (đã sửa để chạy được 100%)
+-- ==========================================
+SET FOREIGN_KEY_CHECKS = 0;
 
--- INSERT DATA
-INSERT INTO KHOA VALUES
-(N'CNTT', N'Tòa A1'),
-(N'KT',   N'Tòa B2');
+TRUNCATE TABLE materials;
+TRUNCATE TABLE lessons;
+TRUNCATE TABLE enrollments;
+TRUNCATE TABLE courses;
+TRUNCATE TABLE categories;
+TRUNCATE TABLE users;
 
-INSERT INTO LOP VALUES
-(N'TH1', N'CNTT'),
-(N'TH2', N'CNTT'),
-(N'KT1', N'KT');
+SET FOREIGN_KEY_CHECKS = 1;
 
-INSERT INTO SINHVIEN VALUES
-(N'SV01', N'Nguyen Van', N'An', '2004-01-01', N'HCM', 1, N'TH1'),
-(N'SV02', N'Tran Thi',   N'Binh', '2004-02-11', N'HCM', 0, N'TH1'),
-(N'SV03', N'Le Van',     N'Cuong', '2004-03-22', N'DN',  0, N'TH2'),
-(N'SV04', N'Pham Thi',   N'Dung', '2004-04-15', N'HN',  0, N'TH2'),
-(N'SV05', N'Hoang Van',  N'Em', '2003-05-12', N'HN', 0,  N'KT1');
+-- ==========================================
+-- INSERT 34 USERS
+-- ==========================================
+INSERT INTO users (username, email, password, fullname, role, status) VALUES
+('superadmin', 'super@sys.vn', '123456', 'Quản trị hệ thống', 2, 1),
+('admin1', 'admin1@sys.vn', '123456', 'Admin Hỗ trợ', 2, 1),
+('admin2', 'admin2@sys.vn', '123456', 'Admin Nội dung', 2, 1),
+('gv_tuan', 'tuan@edu.vn', '123456', 'Nguyễn Văn Tuấn', 1, 1),
+('gv_minh', 'minh@edu.vn', '123456', 'Trần Minh Hoàng', 1, 1),
+('gv_thuy', 'thuy@edu.vn', '123456', 'Lê Thị Thúy', 1, 1),
+('gv_khanh', 'khanh@edu.vn', '123456', 'Phạm Ngọc Khánh', 1, 1),
+('gv_lan', 'lan@edu.vn', '123456', 'Đặng Thị Lan', 1, 1),
+('hv_anh', 'anh@st.vn', '123456', 'Nguyễn Văn Anh', 0, 1),
+('hv_bao', 'bao@st.vn', '123456', 'Trần Bảo Nam', 0, 1),
+('hv_chau', 'chau@st.vn', '123456', 'Lê Ngọc Châu', 0, 1),
+('hv_dung', 'dung@st.vn', '123456', 'Phạm Minh Dũng', 0, 1),
+('hv_hoa', 'hoa@st.vn', '123456', 'Hoàng Thị Hoa', 0, 1),
+('hv_kien', 'kien@st.vn', '123456', 'Vũ Minh Kiên', 0, 1),
+('hv_linh', 'linh@st.vn', '123456', 'Nguyễn Thùy Linh', 0, 1),
+('hv_manh', 'manh@st.vn', '123456', 'Trịnh Văn Mạnh', 0, 1),
+('hv_ngoc', 'ngoc@st.vn', '123456', 'Phạm Bảo Ngọc', 0, 1),
+('hv_phuc', 'phuc@st.vn', '123456', 'Đỗ Hoàng Phúc', 0, 1),
+('hv_quynh', 'quynh@st.vn', '123456', 'Lý Thị Quỳnh', 0, 1),
+('hv_son', 'son@st.vn', '123456', 'Cao Thái Sơn', 0, 1),
+('hv_thanh', 'thanh@st.vn', '123456', 'Ngô Văn Thành', 0, 1),
+('hv_tien', 'tien@st.vn', '123456', 'Bùi Minh Tiến', 0, 1),
+('hv_van', 'van@st.vn', '123456', 'Lại Thị Vân', 0, 1),
+('hv_xuan', 'xuan@st.vn', '123456', 'Đinh Văn Xuân', 0, 1),
+('hv_yen', 'yen@st.vn', '123456', 'Trần Thị Yến', 0, 1),
+('hv_zung', 'zung@st.vn', '123456', 'Hà Văn Dũng', 0, 1),
+('hv_thao', 'thao@st.vn', '123456', 'Đỗ Phương Thảo', 0, 1),
+('hv_khoa', 'khoa@st.vn', '123456', 'Mạc Đăng Khoa', 0, 1),
+('hv_hung', 'hung@st.vn', '123456', 'Nguyễn Hoàng Hùng', 0, 1),
+('hv_nhi', 'nhi@st.vn', '123456', 'Lê Ngọc Nhi', 0, 1),
+('hv_tuananh', 'tuananh@st.vn', '123456', 'Trần Tuấn Anh', 0, 1),
+('hv_binh', 'binh@st.vn', '123456', 'Phạm Văn Bình', 0, 1),
+('hv_viet', 'viet@st.vn', '123456', 'Ngô Quốc Việt', 0, 1),
+('hv_tam', 'tam@st.vn', '123456', 'Trần Thanh Tâm', 0, 1);
 
-INSERT INTO MONHOC VALUES
-(N'CSDL', N'Co So Du Lieu', 30, 15),
-(N'CTDL', N'Cau Truc DL',   45, 20),
-(N'MOB',  N'Lap Trinh Mobile', 30, 30),
-(N'WEB',  N'Lap Trinh Web', 45, 30);
+-- ==========================================
+-- INSERT 12 CATEGORIES
+-- ==========================================
+INSERT INTO categories (name, description) VALUES
+('Lập trình Web', 'HTML, CSS, JavaScript, PHP, Laravel, Node.js'),
+('Lập trình Mobile', 'Android, iOS, Flutter, React Native'),
+('Khoa học dữ liệu & AI', 'Python, Machine Learning, Deep Learning'),
+('Thiết kế đồ họa & UI/UX', 'Photoshop, Illustrator, Figma'),
+('Digital Marketing', 'SEO, Google Ads, Facebook Ads, Content'),
+('Kỹ năng mềm & Phát triển bản thân', 'Giao tiếp, Lãnh đạo, Quản lý thời gian'),
+('Ngoại ngữ', 'Tiếng Anh, Tiếng Nhật, Tiếng Hàn'),
+('Tin học văn phòng', 'Excel, Word, PowerPoint nâng cao'),
+('An ninh mạng & DevOps', 'Cyber Security, Docker, Kubernetes'),
+('Blockchain & Crypto', 'Ethereum, Solidity, DeFi'),
+('Lập trình Game', 'Unity, Unreal Engine'),
+('Kinh doanh Online', 'Shopee, TikTok Shop, Dropshipping');
 
-INSERT INTO CTHOC VALUES
-(N'TH1', 1, N'CSDL'),
-(N'TH1', 1, N'CTDL'),
-(N'TH1', 2, N'MOB'),
-(N'TH1', 2, N'WEB'),
+-- ==========================================
+-- INSERT 23 COURSES
+-- ==========================================
+INSERT INTO courses (title, description, instructor_id, category_id, price, duration_weeks, level, status) VALUES
+('Laravel 10 từ Zero đến Hero', 'Xây dựng website hoàn chỉnh với Laravel', 4, 1, 1200000, 12, 'Intermediate', 'approved'),
+('ReactJS & Redux nâng cao', 'Xây dựng SPA mạnh mẽ với React', 4, 1, 1500000, 10, 'Advanced', 'approved'),
+('HTML & CSS Responsive', 'Thiết kế web đẹp trên mọi thiết bị', 5, 1, 500000, 6, 'Beginner', 'approved'),
+('NodeJS & Express Fullstack', 'Backend với Node.js và MongoDB', 4, 1, 1300000, 8, 'Intermediate', 'approved'),
+('Flutter - App đa nền tảng', 'Xây dựng iOS & Android bằng Dart', 6, 2, 1800000, 14, 'Intermediate', 'approved'),
+('Android Kotlin hiện đại', 'Lập trình Android chuyên nghiệp', 6, 2, 1400000, 12, 'Beginner', 'approved'),
+('Python Data Science & Pandas', 'Phân tích dữ liệu chuyên sâu', 7, 3, 1600000, 10, 'Intermediate', 'approved'),
+('Machine Learning thực chiến', 'Dự đoán & phân loại với Scikit-learn', 7, 3, 2200000, 12, 'Advanced', 'approved'),
+('Photoshop từ cơ bản đến pro', 'Chỉnh sửa ảnh chuyên nghiệp', 8, 4, 600000, 6, 'Beginner', 'approved'),
+('Figma UI/UX Design chuyên sâu', 'Thiết kế giao diện đẹp & thân thiện', 8, 4, 800000, 8, 'Intermediate', 'approved'),
+('SEO & Content Marketing 2025', 'Chiến lược SEO mới nhất', 5, 5, 1000000, 8, 'Intermediate', 'approved'),
+('Facebook Ads & TikTok Ads', 'Chạy quảng cáo hiệu quả', 5, 5, 1200000, 6, 'Beginner', 'approved'),
+('Tiếng Anh giao tiếp thực chiến', 'Nói tiếng Anh tự tin trong 90 ngày', 8, 7, 900000, 10, 'Beginner', 'approved'),
+('Excel nâng cao & Power Query', 'Xử lý dữ liệu lớn với Excel', 5, 8, 500000, 5, 'Intermediate', 'approved'),
+('Linux Server & DevOps', 'Quản trị máy chủ và container', 6, 9, 1800000, 10, 'Advanced', 'approved'),
+('Blockchain & Smart Contract', 'Xây dựng DApp trên Ethereum', 4, 10, 2000000, 10, 'Advanced', 'approved'),
+('Unity 2D & 3D Game Development', 'Tạo game chuyên nghiệp với Unity', 7, 11, 1700000, 12, 'Intermediate', 'approved'),
+('VueJS 3 Composition API', 'Framework frontend hiện đại', 4, 1, 1100000, 8, 'Intermediate', 'approved'),
+('Docker & Kubernetes thực chiến', 'Triển khai ứng dụng container', 6, 9, 1900000, 8, 'Advanced', 'approved'),
+('Cyber Security cho người mới', 'Bảo mật thông tin cơ bản', 6, 9, 1300000, 8, 'Beginner', 'approved'),
+('Kinh doanh Online với Shopee', 'Bán hàng triệu đô trên Shopee', 5, 12, 900000, 8, 'Beginner', 'approved'),
+('JavaScript ES6+ Masterclass', 'Hiểu sâu về JS hiện đại', 4, 1, 800000, 6, 'Intermediate', 'approved'),
+('Deep Learning với TensorFlow', 'Xây dựng mạng nơ-ron sâu', 7, 3, 2500000, 14, 'Advanced', 'approved');
 
-(N'TH2', 1, N'CSDL'),
-(N'TH2', 2, N'CTDL');
+-- ==========================================
+-- INSERT 35 ENROLLMENTS
+-- ==========================================
+INSERT INTO enrollments (course_id, student_id, status, progress) VALUES
+(1, 9, 'active', 35), (1, 10, 'active', 80), (1, 11, 'completed', 100),
+(2, 12, 'active', 15), (2, 13, 'active', 60), (2, 14, 'dropped', 5),
+(3, 15, 'active', 90), (3, 16, 'completed', 100), (3, 17, 'active', 40),
+(4, 18, 'active', 25), (4, 19, 'active', 70),
+(5, 20, 'active', 55), (5, 21, 'completed', 100),
+(6, 22, 'active', 10), (6, 23, 'active', 30),
+(7, 24, 'active', 45), (7, 25, 'active', 85),
+(8, 26, 'active', 20), (8, 27, 'active', 65),
+(9, 28, 'completed', 100), (9, 29, 'active', 15),
+(10, 30, 'active', 50), (10, 31, 'active', 90),
+(11, 32, 'active', 30), (11, 33, 'active', 75),
+(12, 34, 'dropped', 0), (13, 9, 'active', 60),
+(14, 10, 'active', 80), (15, 11, 'active', 25),
+(16, 12, 'active', 40), (17, 13, 'completed', 100),
+(18, 14, 'active', 10), (19, 15, 'active', 70), (20, 16, 'active', 95);
 
-INSERT INTO DIEMSV VALUES
-(N'SV01', N'CSDL', 1, 8.0),
-(N'SV01', N'CTDL', 1, 7.0),
-(N'SV01', N'MOB',  1, 6.0),
+-- ==========================================
+-- INSERT 23 LESSONS
+-- ==========================================
+INSERT INTO lessons (course_id, title, content, video_url, order_num) VALUES
+(1, 'Cài đặt Laravel 10', 'Hướng dẫn cài Laravel mới nhất', 'https://youtu.be/7v6K3dP6vE0', 1),
+(1, 'Cấu trúc dự án Laravel', 'Giải thích MVC trong Laravel', 'https://youtu.be/2vK0y9r3r3c', 2),
+(1, 'Routing & Controller', 'Cách định tuyến và xử lý request', 'https://youtu.be/3kL9mZ9pQ8Y', 3),
+(2, 'ReactJS - JSX & Component', 'Hiểu về JSX và component', 'https://youtu.be/9kL5y9k9q9k', 1),
+(2, 'State & Props', 'Quản lý dữ liệu trong React', 'https://youtu.be/9kL5y9k9q9k', 2),
+(3, 'HTML5 Semantic Tags', 'Sử dụng thẻ semantic đúng chuẩn', 'https://youtu.be/4tK9mZ9pQ8Y', 1),
+(3, 'CSS Flexbox & Grid', 'Thiết kế layout hiện đại', 'https://youtu.be/5uL9mZ9pQ8Y', 2),
+(4, 'Cài đặt NodeJS & Express', 'Khởi tạo dự án backend', 'https://youtu.be/6vK9mZ9pQ8Y', 1),
+(5, 'Flutter - Widget cơ bản', 'Hiểu về widget trong Flutter', 'https://youtu.be/7wK9mZ9pQ8Y', 1),
+(6, 'Kotlin - Biến & Kiểu dữ liệu', 'Cú pháp Kotlin cơ bản', 'https://youtu.be/8xL9mZ9pQ8Y', 1),
+(7, 'Python - Pandas DataFrame', 'Làm việc với dữ liệu bảng', 'https://youtu.be/9yL9mZ9pQ8Y', 1),
+(8, 'Machine Learning - Linear Regression', 'Mô hình hồi quy tuyến tính', 'https://youtu.be/0zL9mZ9pQ8Y', 1),
+(9, 'Photoshop - Layer & Mask', 'Sử dụng layer và mask', 'https://youtu.be/1aL9mZ9pQ8Y', 1),
+(10, 'Figma - Auto Layout', 'Thiết kế responsive với Figma', 'https://youtu.be/2bL9mZ9pQ8Y', 1),
+(11, 'SEO On-page & Off-page', 'Chiến lược SEO hiệu quả', 'https://youtu.be/3cL9mZ9pQ8Y', 1),
+(12, 'Facebook Ads - Tạo chiến dịch', 'Cách chạy quảng cáo Facebook', 'https://youtu.be/4dL9mZ9pQ8Y', 1),
+(13, 'Tiếng Anh - Phát âm chuẩn', 'Luyện phát âm IPA', 'https://youtu.be/5eL9mZ9pQ8Y', 1),
+(14, 'Excel - VLOOKUP & INDEX-MATCH', 'Tra cứu dữ liệu nâng cao', 'https://youtu.be/6fL9mZ9pQ8Y', 1),
+(15, 'Linux - Cài đặt Ubuntu Server', 'Thiết lập máy chủ Linux', 'https://youtu.be/7gL9mZ9pQ8Y', 1),
+(16, 'Blockchain - Hiểu về Hash', 'Khái niệm Hash trong blockchain', 'https://youtu.be/8hL9mZ9pQ8Y', 1),
+(17, 'Unity - Cài đặt & Tạo Scene', 'Bắt đầu với Unity', 'https://youtu.be/9iL9mZ9pQ8Y', 1),
+(18, 'VueJS 3 - Composition API', 'Học Composition API', 'https://youtu.be/0jL9mZ9pQ8Y', 1),
+(19, 'Docker - Tạo Dockerfile', 'Viết Dockerfile đầu tiên', 'https://youtu.be/1kL9mZ9pQ8Y', 1);
 
-(N'SV02', N'CSDL', 1, 4.0),
-(N'SV02', N'CTDL', 1, 5.0),
+-- ==========================================
+-- INSERT 8 MATERIALS
+-- ==========================================
+INSERT INTO materials (lesson_id, filename, file_path, file_type) VALUES
+(1, 'laravel_install_guide.pdf', 'assets/uploads/materials/laravel_install.pdf', 'pdf'),
+(1, 'laravel_project_structure.png', 'assets/uploads/materials/laravel_structure.png', 'image'),
+(2, 'react_jsx_cheatsheet.pdf', 'assets/uploads/materials/react_jsx.pdf', 'pdf'),
+(3, 'html5_semantic_tags.html', 'assets/uploads/materials/semantic_tags.html', 'code'),
+(5, 'flutter_widget_catalog.pdf', 'assets/uploads/materials/flutter_widgets.pdf', 'pdf'),
+(9, 'photoshop_layer_mask.zip', 'assets/uploads/materials/photoshop_layer.zip', 'zip'),
+(11, 'seo_checklist_2025.pdf', 'assets/uploads/materials/seo_checklist.pdf', 'pdf'),
+(19, 'docker_basics.pdf', 'assets/uploads/materials/docker_basics.pdf', 'pdf');
 
-(N'SV03', N'CSDL', 1, 9.0),
-(N'SV03', N'CTDL', 1, 8.0),
-
-(N'SV04', N'CSDL', 1, 2.0),
-(N'SV04', N'CTDL', 1, 3.0),
-
-(N'SV05', N'CSDL', 1, 6.5);
-GO
-
-
-
--- 1. Danh sách lớp
-SELECT * FROM LOP;
-
--- 2. Ds sv lớp TH1
-SELECT * FROM SINHVIEN WHERE Malop = 'TH1';
-
--- 3. Ds sv khoa CNTT
-SELECT * FROM SINHVIEN JOIN LOP ON SINHVIEN.Malop = LOP.Malop WHERE LOP.Makh = 'CNTT';
-
--- 4. Chương trình hoc lớp TH1
-SELECT CTHOC.HK, CTHOC.Mamh, MONHOC.Tenmh, MONHOC.LT, MONHOC.TH FROM CTHOC JOIN MONHOC ON CTHOC.Mamh = MONHOC.Mamh WHERE CTHOC.Malop = 'TH1' ORDER BY CTHOC.HK, CTHOC.Mamh;
-
--- 5. Điểm lần 1 môn CSDL của sv lớp TH1
-SELECT SINHVIEN.Masv, SINHVIEN.Hosv, SINHVIEN.Tensv, DIEMSV.Diem FROM SINHVIEN
-JOIN DIEMSV ON SINHVIEN.Masv = DIEMSV.Masv WHERE SINHVIEN.Malop = 'TH1' AND DIEMSV.Mamh = 'CSDL' AND DIEMSV.Lan = 1;
-
--- 6. Điểm trung bình lần 1 môn CTDL của lớp TH1.
-SELECT AVG(d.Diem) AS DiemTB FROM SINHVIEN sv
-JOIN DIEMSV d ON sv.Masv = d.Masv
-WHERE sv.Malop = 'TH1' AND d.Mamh = 'CTDL' AND d.Lan = 1;
-
--- 7. Số lượng SV của lớp TH2.
-SELECT COUNT(*) AS SoLuongSV FROM SINHVIEN
-WHERE Malop = 'TH2';
-
--- 8. Lớp TH1 phải học bao nhiêu môn trong HK1 và HK2.
-SELECT HK, COUNT(Mamh) AS SoMon FROM CTHOC
-WHERE Malop = 'TH1' AND HK IN (1, 2) 
-GROUP BY HK;
-
--- 9. Cho biết 3 SV đầu tiên có điểm thi lần 1 cao nhất môn CSDL.
-SELECT sv.Masv, sv.Hosv, sv.Tensv, d.Diem FROM SINHVIEN sv
-JOIN DIEMSV d ON sv.Masv = d.Masv
-WHERE d.Mamh = 'CSDL'
-  AND d.Lan = 1
-ORDER BY d.Diem DESC
-LIMIT 3;
-
--- 10. Cho biết sĩ số từng lớp.
-SELECT Malop, COUNT(*) AS SiSo
-FROM SINHVIEN
-GROUP BY Malop;
-
--- 11. Khoa nào đông SV nhất.
-SELECT k.Makh, COUNT(sv.Masv) AS SoSV
-FROM KHOA k
-JOIN LOP l ON k.Makh = l.Makh
-JOIN SINHVIEN sv ON l.Malop = sv.Malop
-GROUP BY k.Makh
-ORDER BY SoSV DESC
-LIMIT 1;
-
--- 12. Lớp nào đông nhất khoa CNTT.
-SELECT l.Malop, COUNT(sv.Masv) AS SoSV
-FROM LOP l
-JOIN SINHVIEN sv ON l.Malop = sv.Malop
-WHERE l.Makh = 'CNTT'
-GROUP BY l.Malop
-ORDER BY SoSV DESC
-LIMIT 1;
-
--- 13. Môn học nào mà ở lần thi 1 có số SV không đạt nhiều nhất.
-SELECT Mamh, COUNT(*) AS SoKhongDat
-FROM DIEMSV
-WHERE Lan = 1 AND Diem < 5
-GROUP BY Mamh
-ORDER BY SoKhongDat DESC
-LIMIT 1;
-
--- 14. Tìm điểm thi lớn nhất của mỗi SV cho mỗi môn học (vì SV được thi nhiều lần).
-SELECT Masv, Mamh, MAX(Diem) AS DiemCaoNhat
-FROM DIEMSV
-GROUP BY Masv, Mamh;
-
--- 15. Điểm trung bình của từng lớp khoa CNTT ở lần thi thứ nhất môn CSDL.
-SELECT l.Malop, AVG(d.Diem) AS DiemTB
-FROM KHOA k
-JOIN LOP l ON k.Makh = l.Makh
-JOIN SINHVIEN sv ON l.Malop = sv.Malop
-JOIN DIEMSV d ON sv.Masv = d.Masv
-WHERE k.Makh = 'CNTT'
-  AND d.Mamh = 'CSDL'
-  AND d.Lan = 1
-GROUP BY l.Malop;
-
--- 16. Sinh viên nào của lớp TH1 đã thi đạt tất cả các môn học ở lần 1 của HK2.
-SELECT sv.Masv, sv.Hosv, sv.Tensv
-FROM SINHVIEN sv
-JOIN CTHOC c ON sv.Malop = c.Malop
-JOIN DIEMSV d ON sv.Masv = d.Masv AND c.Mamh = d.Mamh
-WHERE sv.Malop = 'TH1'
-  AND c.HK = 2
-  AND d.Lan = 1
-GROUP BY sv.Masv
-HAVING MIN(d.Diem) >= 5;
-
--- 17. Danh sách SV nhận học bổng học kỳ 2 của lớp TH2, nghĩa là đạt tất cả các môn học của học kỳ này ở lần thi thứ nhất.
-SELECT sv.Masv, sv.Hosv, sv.Tensv
-FROM SINHVIEN sv
-JOIN CTHOC c ON sv.Malop = c.Malop
-JOIN DIEMSV d ON sv.Masv = d.Masv AND c.Mamh = d.Mamh
-WHERE sv.Malop = 'TH2'
-  AND c.HK = 2
-  AND d.Lan = 1
-GROUP BY sv.Masv
-HAVING MIN(d.Diem) >= 5;
-
--- 18. Biết rằng lớp TH1 đã học đủ 6 học kỳ, cho biết SV nào đủ điều kiện thi tốt nghiệp, nghĩa là đã đạt đủ tất cả các môn
-SELECT sv.Masv, sv.Hosv, sv.Tensv
-FROM SINHVIEN sv
-JOIN CTHOC c ON sv.Malop = c.Malop
-JOIN DIEMSV d ON sv.Masv = d.Masv AND c.Mamh = d.Mamh
-WHERE sv.Malop = 'TH1'
-  AND c.HK BETWEEN 1 AND 6
-  AND d.Lan = 1
-GROUP BY sv.Masv
-HAVING MIN(d.Diem) >= 5;
-
-
-
-
---USE QLSV;
---GO
-
---IF OBJECT_ID('DIEMSV', 'U') IS NOT NULL DROP TABLE DIEMSV;
---IF OBJECT_ID('CTHOC', 'U') IS NOT NULL DROP TABLE CTHOC;
---IF OBJECT_ID('MONHOC', 'U') IS NOT NULL DROP TABLE MONHOC;
---IF OBJECT_ID('SINHVIEN', 'U') IS NOT NULL DROP TABLE SINHVIEN;
---IF OBJECT_ID('LOP', 'U') IS NOT NULL DROP TABLE LOP;
---IF OBJECT_ID('KHOA', 'U') IS NOT NULL DROP TABLE KHOA;
---GO
-
-
--- Thêm dữ liệu
-INSERT INTO KHOA VALUES
-(N'QTKD', N'Tòa C1'),
-(N'NN',   N'Tòa C2');
-
-INSERT INTO LOP VALUES
-(N'Q1', N'QTKD'),
-(N'Q2', N'QTKD'),
-(N'NN1', N'NN'),
-(N'NN2', N'NN');
-
-INSERT INTO SINHVIEN VALUES
-(N'SV06', N'Pham Van', N'Khoi', '2004-09-10', N'HCM', 0, N'TH1', N'Nam'),
-(N'SV07', N'Nguyen Thi', N'Loan', '2003-12-21', N'DN', 0, N'TH2', N'Nữ'),
-(N'SV08', N'Bui Van', N'Tuan', '2004-08-01', N'HN', 1, N'KT1', N'Nam'),
-
-(N'SV09', N'Tran Quoc', N'Bao', '2003-04-12', N'HCM', 0, N'Q1', N'Nam'),
-(N'SV10', N'Hoang Thi', N'Nhu', '2004-06-02', N'HCM', 1, N'Q1', N'Nữ'),
-(N'SV11', N'Le Van', N'Thien', '2004-01-19', N'DN', 0, N'Q2', N'Nam'),
-(N'SV12', N'Pham Thi', N'Hong', '2003-11-15', N'HN', 0, N'Q2', N'Nữ'),
-
-(N'SV13', N'Vu Minh', N'Trung', '2004-07-22', N'DN', 0, N'NN1', N'Nam'),
-(N'SV14', N'Nguyen Thi', N'Thuy', '2003-03-09', N'HN', 1, N'NN1', N'Nữ'),
-(N'SV15', N'Do Van', N'Loc', '2004-09-30', N'HCM', 0, N'NN2', N'Nam'),
-(N'SV16', N'Pham Thi', N'Yen', '2004-10-05', N'DN', 0, N'NN2', N'Nữ');
-
-INSERT INTO MONHOC VALUES
-(N'MKT',  N'Marketing Co Ban', 30, 15),
-(N'KTDN', N'Kinh Te Doanh Nghiep', 45, 30),
-(N'TA',   N'Tieng Anh Chuyen Nganh', 60, 30);
-
--- Q1 học kỳ 1–2
-INSERT INTO CTHOC VALUES
-(N'Q1', 1, N'MKT'),
-(N'Q1', 1, N'KTDN'),
-(N'Q1', 2, N'TA');
-
--- Q2 học kỳ 1–2
-INSERT INTO CTHOC VALUES
-(N'Q2', 1, N'MKT'),
-(N'Q2', 2, N'KTDN'),
-(N'Q2', 2, N'TA');
-
--- NN1 học kỳ 1–2
-INSERT INTO CTHOC VALUES
-(N'NN1', 1, N'TA'),
-(N'NN1', 2, N'MKT');
-
--- NN2 học kỳ 1–2
-INSERT INTO CTHOC VALUES
-(N'NN2', 1, N'TA'),
-(N'NN2', 2, N'KTDN');
-
-INSERT INTO DIEMSV VALUES
--- SV06 – TH1
-(N'SV06', N'CSDL', 1, 7.0),
-(N'SV06', N'CTDL', 1, 6.5),
-(N'SV06', N'MOB',  1, 8.0),
-
--- SV07 – TH2
-(N'SV07', N'CSDL', 1, 8.5),
-(N'SV07', N'CTDL', 1, 7.5),
-
--- SV08 – KT1
-(N'SV08', N'CSDL', 1, 5.5),
-
--- SV09 – Q1
-(N'SV09', N'MKT',  1, 7.5),
-(N'SV09', N'KTDN', 1, 6.0),
-
--- SV10 – Q1
-(N'SV10', N'MKT',  1, 9.0),
-(N'SV10', N'KTDN', 1, 8.0),
-(N'SV10', N'TA',   1, 7.0),
-
--- SV11 – Q2
-(N'SV11', N'MKT',  1, 6.5),
-(N'SV11', N'KTDN', 1, 5.5),
-
--- SV12 – Q2
-(N'SV12', N'MKT',  1, 7.0),
-(N'SV12', N'KTDN', 1, 9.0),
-(N'SV12', N'TA',   1, 8.5),
-
--- SV13 – NN1
-(N'SV13', N'TA',   1, 8.0),
-(N'SV13', N'MKT',  1, 7.0),
-
--- SV14 – NN1
-(N'SV14', N'TA',   1, 6.0),
-
--- SV15 – NN2
-(N'SV15', N'TA',   1, 7.5),
-(N'SV15', N'KTDN', 1, 6.0),
-
--- SV16 – NN2
-(N'SV16', N'TA',   1, 5.0),
-(N'SV16', N'KTDN', 1, 7.0);
-=======
-create database CompanyDB;
->>>>>>> 6a14c9bd7a7fb4c2dc9f4b1f14e196ecfa73f3fa
+-- Bật lại kiểm tra khóa ngoại
+SET FOREIGN_KEY_CHECKS = 1;
