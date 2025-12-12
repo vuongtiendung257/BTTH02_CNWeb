@@ -19,14 +19,16 @@
     <h2>Đăng ký tài khoản</h2>
 
     <?php if (isset($_GET['error'])): ?>
-        <p class="error"><?php echo htmlspecialchars($_GET['error']); ?></p>
+        <p class="error" style="color: red;">
+            <?php echo htmlspecialchars(urldecode($_GET['error'])); ?>
+        </p>
     <?php endif; ?>
 
     <?php if (isset($_GET['success'])): ?>
         <p class="success">Đăng ký thành công! Vui lòng <a href="/login">đăng nhập</a>.</p>
     <?php endif; ?>
 
-    <form action="/register" method="POST">
+    <form action="index.php?page=register" method="POST">
         <div class="form-group">
             <label>Họ và tên</label>
             <input type="text" name="fullname" required>
