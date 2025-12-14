@@ -25,6 +25,9 @@ require_once '../../controllers/LessonController.php';
 
 $lessonController = new LessonController();
 
+require_once '../../controllers/MaterialController.php';
+$materialController = new MaterialController();
+
 $action = $_GET['action'] ?? 'index';
 $id = $_GET['id'] ?? null;
 
@@ -61,6 +64,15 @@ switch ($action) {
         break;
     case 'lesson_delete':
         $lessonController->delete($_GET['id'] ?? 0);
+        break;
+    case 'material_upload':
+        $materialController->uploadForm($_GET['lesson_id'] ?? 0);
+        break;
+    case 'material_store':
+        $materialController->store($_GET['lesson_id'] ?? 0);
+        break;
+    case 'material_delete':
+        $materialController->delete($_GET['id'] ?? 0);
         break;
     case 'index':
     default:

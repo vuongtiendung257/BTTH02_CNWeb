@@ -6,19 +6,21 @@ class Material {
         $this->db = $db;
     }
 
-    // Lấy tài liệu theo bài học
     public function getByLessonId($lesson_id) {
         $stmt = $this->db->prepare("SELECT * FROM materials WHERE lesson_id = ? ORDER BY uploaded_at DESC");
         $stmt->execute([$lesson_id]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Thêm tài liệu mới
-    public function create($data) {
-        $stmt = $this->db->prepare("INSERT INTO materials 
-            (lesson_id, filename, file_path, file_type, uploaded_at) 
-            VALUES (?, ?, ?, ?, NOW())");
+    public function getById($id) {
+        $stmt = $this->db->prepare("SELECT * FROM materials WHERE id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 
+    public function create($data) {
+        $stmt = $this->db->prepare("INSERT INTO materials (lesson_id, filename, file_path, file_type, uploaded_at) 
+                                    VALUES (?, ?, ?, ?, NOW())");
         return $stmt->execute([
             $data['lesson_id'],
             $data['filename'],
@@ -27,9 +29,7 @@ class Material {
         ]);
     }
 
-    // Xóa tài liệu
     public function delete($id) {
-        // Trước khi xóa DB, nên xóa file thực tế nữa (sẽ làm ở controller)
         $stmt = $this->db->prepare("DELETE FROM materials WHERE id = ?");
         return $stmt->execute([$id]);
     }
