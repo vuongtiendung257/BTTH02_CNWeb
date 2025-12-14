@@ -60,6 +60,7 @@
                                 <a href="dashboard.php?action=lesson_delete&id=<?= $lesson['id'] ?>" 
                                    class="btn btn-sm btn-danger"
                                    onclick="return confirm('Xóa bài học này? Tài liệu đính kèm cũng sẽ bị xóa!')">Xóa</a>
+                                <a href="dashboard.php?action=material_upload&lesson_id=<?= $lesson['id'] ?>" class="btn btn-sm btn-success">Tài liệu</a>
                             </td>
                         </tr>
                     <?php endforeach; ?>
