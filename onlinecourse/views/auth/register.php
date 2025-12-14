@@ -17,6 +17,10 @@
 </head>
 <body>
     <?php
+
+    $hideHeader = true;
+    require_once __DIR__ . '/../layouts/header.php';    
+
     if (isset($_SESSION['user_id'])) 
         {
         header("Location: index.php?page=home");

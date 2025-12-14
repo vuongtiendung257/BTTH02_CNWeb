@@ -14,6 +14,10 @@
 </head>
 <body>
 <?php
+
+    $hideHeader = true;
+    require_once __DIR__ . '/../layouts/header.php';
+    
     // CHẶN NGƯỜI ĐÃ ĐĂNG NHẬP
     if (isset($_SESSION['user_id'])) 
         {
