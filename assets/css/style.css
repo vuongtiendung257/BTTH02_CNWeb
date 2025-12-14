@@ -1,0 +1,165 @@
+/* =========================================================
+   STYLE CHO TRANG DANH SÁCH KHÓA HỌC (DẠNG BẢNG)
+   ========================================================= */
+
+/* --- 1. Khu vực tìm kiếm và lọc --- */
+.search-filter-container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    margin-bottom: 30px;
+}
+
+.search-form-grid {
+    display: grid;
+    /* Chia làm 3 cột: input, select, button */
+    grid-template-columns: 2fr 1fr auto; 
+    gap: 15px;
+    align-items: center;
+}
+
+.search-input,
+.category-select {
+    padding: 12px 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box;
+    width: 100%; /* Đảm bảo fill hết cột */
+}
+
+.btn-search {
+    background-color: #007bff; /* Màu xanh dương */
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+    white-space: nowrap;
+}
+
+.btn-search:hover {
+    background-color: #0056b3;
+}
+
+/* --- 2. Khu vực Bảng Khóa học --- */
+.course-results-table {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    overflow: hidden; /* Cần thiết cho border-radius */
+}
+
+/* Định nghĩa cấu trúc cột sử dụng CSS Grid */
+.table-header,
+.table-row {
+    display: grid;
+    /* Cấu trúc cột tương đương hình ảnh: 
+       Khóa học (3.5), Giảng viên (1.5), Danh mục (1.5), Giá (1), Thời lượng (1), Hành động (2) */
+    grid-template-columns: 3.5fr 1.5fr 1.5fr 1fr 1fr 2fr;
+    padding: 15px 20px;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+}
+
+/* Tiêu đề bảng */
+.table-header {
+    background-color: #f8f9fa; /* Màu nền cho header */
+    color: #343a40;
+    font-weight: bold;
+    font-size: 15px;
+    border-bottom: 2px solid #ccc;
+}
+
+/* Hàng dữ liệu */
+.table-row {
+    transition: background-color 0.2s;
+}
+
+.table-row:hover {
+    background-color: #f0f8ff; /* Hiệu ứng hover nhẹ */
+}
+
+/* --- Chi tiết từng cột --- */
+
+.col-course-info {
+    display: flex;
+    align-items: center;
+}
+
+.course-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    object-fit: cover;
+    margin-right: 15px;
+}
+
+.course-title-link {
+    font-weight: 600;
+    color: #333;
+    text-decoration: none;
+}
+
+.course-title-link:hover {
+    color: #007bff;
+}
+
+/* Định dạng giá tiền (màu đỏ) */
+.col-price {
+    font-weight: 600;
+}
+.price-red {
+    color: #dc3545; /* Màu đỏ */
+}
+
+/* --- Cột Hành động (Actions) --- */
+.col-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-action {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+.btn-action i {
+    margin-right: 5px;
+}
+
+.btn-view {
+    background-color: #e9ecef;
+    color: #333;
+    border: 1px solid #ccc;
+}
+
+.btn-view:hover {
+    background-color: #dee2e6;
+}
+
+.btn-register {
+    background-color: #28a745; /* Màu xanh lá cây đậm */
+    color: white;
+}
+
+.btn-register:hover {
+    background-color: #1e7e34;
+}
+
+.no-results {
+    padding: 20px;
+    text-align: center;
+    color: #6c757d;
+}
+
+/* --- Đảm bảo Font Awesome được nhúng cho icons (i.fas) --- */
+/* (Bạn cần nhúng Font Awesome vào file header.php của mình) */

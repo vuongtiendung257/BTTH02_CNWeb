@@ -1,37 +1,55 @@
 <?php
-class Material {
-    private $db;
+// models/Lesson.php
+require_once 'config/Database.php';
 
-    public function __construct($db) {
-        $this->db = $db;
+class Lesson {
+    private $conn;
+
+    public function __construct() {
+        $this->conn = Database::getConnection();
+    }
+    
+    /**
+     * Lấy tổng số bài học trong một khóa học
+     * @param int $course_id
+     * @return int
+     */
+    public function countLessonsInCourse($course_id) {
+        $query = "SELECT COUNT(id) FROM lessons WHERE course_id = :course_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':course_id', $course_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return (int) $stmt->fetchColumn();
     }
 
-    // Lấy tài liệu theo bài học
-    public function getByLessonId($lesson_id) {
-        $stmt = $this->db->prepare("SELECT * FROM materials WHERE lesson_id = ? ORDER BY uploaded_at DESC");
-        $stmt->execute([$lesson_id]);
+    /**
+     * Lấy chi tiết bài học (để hiển thị nội dung)
+     * @param int $lesson_id
+     * @return array|null
+     */
+    public function getLessonDetail($lesson_id) {
+        $query = "
+            SELECT l.*, c.id AS course_id, c.title AS course_title
+            FROM lessons l
+            JOIN courses c ON l.course_id = c.id
+            WHERE l.id = :lesson_id
+        ";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':lesson_id', $lesson_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    
+    /**
+     * Lấy tài liệu của bài học
+     * @param int $lesson_id
+     * @return array
+     */
+    public function getMaterialsByLesson($lesson_id) {
+        $query = "SELECT * FROM materials WHERE lesson_id = :lesson_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':lesson_id', $lesson_id, PDO::PARAM_INT);
+        $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-
-    // Thêm tài liệu mới
-    public function create($data) {
-        $stmt = $this->db->prepare("INSERT INTO materials 
-            (lesson_id, filename, file_path, file_type, uploaded_at) 
-            VALUES (?, ?, ?, ?, NOW())");
-
-        return $stmt->execute([
-            $data['lesson_id'],
-            $data['filename'],
-            $data['file_path'],
-            $data['file_type']
-        ]);
-    }
-
-    // Xóa tài liệu
-    public function delete($id) {
-        // Trước khi xóa DB, nên xóa file thực tế nữa (sẽ làm ở controller)
-        $stmt = $this->db->prepare("DELETE FROM materials WHERE id = ?");
-        return $stmt->execute([$id]);
-    }
 }
-?>

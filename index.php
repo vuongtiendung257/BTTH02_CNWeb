@@ -1,24 +1,46 @@
 <?php
-// index.php - Router đơn giản để test đăng ký (đã test 100% hoạt động)
+// onlinecourse/index.php
+
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 
 session_start();
 
-require_once __DIR__ . '/controllers/AuthController.php';
+/*
+|--------------------------------------------------------------------------
+| AUTOLOAD CONTROLLER + MODEL
+|--------------------------------------------------------------------------
+*/
+spl_autoload_register(function ($class) {
+    $controllerPath = __DIR__ . "/controllers/$class.php";
+    $modelPath      = __DIR__ . "/models/$class.php";
 
-$controller = new AuthController();
-
-// Debug để xem route có vào đúng không
-// echo "<pre>"; print_r($_SERVER); echo "</pre>"; // bỏ comment nếu cần debug
-
-if (isset($_GET['page']) && $_GET['page'] === 'register') {
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller->register();   // xử lý khi nhấn nút Đăng ký
-    } else {
-        require_once __DIR__ . '/views/auth/register.php';  // hiển thị form
+    if (file_exists($controllerPath)) {
+        require_once $controllerPath;
+    } elseif (file_exists($modelPath)) {
+        require_once $modelPath;
     }
-    exit;
+});
+
+
+
+$controllerName = $_GET['controller'] ?? 'course';
+$action         = $_GET['action'] ?? 'index';
+
+$controllerClass = ucfirst($controllerName) . 'Controller';
+
+// Kiểm tra controller tồn tại
+if (!class_exists($controllerClass)) {
+    die("Controller <b>$controllerClass</b> không tồn tại");
 }
 
-// Nếu truy cập trang khác thì hiện link vào form
-echo "Trang chủ<br>";
-echo "<a href='/register'>Đăng ký tài khoản</a>";
+// Khởi tạo controller
+$controller = new $controllerClass();
+
+// Kiểm tra action tồn tại
+if (!method_exists($controller, $action)) {
+    die("Action <b>$action</b> không tồn tại trong $controllerClass");
+}
+
+// Gọi action
+$controller->$action();

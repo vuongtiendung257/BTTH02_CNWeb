@@ -1,44 +1,27 @@
 <?php
-// config/Database.php
 
-class Database 
-{
-    private static $instance = null;
-    private $conn;
+class Database {
+    private static $host = 'localhost';
+    private static $db_name = 'onlinecourse';
+    private static $username = 'root'; // Thay đổi nếu cần
+    private static $password = '';     // Thay đổi nếu cần
+    private static $conn = null;
 
-    // Thay đổi thông tin kết nối theo máy bạn
-    private $host = 'localhost';
-    private $dbname = 'onlinecourse';    // database name
-    private $username = 'root';          // username MySQL 
-    private $password = '';              // password MySQL 
-
-    private function __construct() 
-    {
-        try 
-        {
-            $this->conn = new PDO(
-                "mysql:host=$this->host;dbname=$this->dbname;charset=utf8mb4",
-                $this->username,
-                $this->password,
-                [
-                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                    PDO::ATTR_EMULATE_PREPARES => false,
-                ]
-            );
+    /**
+     * Lấy kết nối PDO
+     * @return PDO
+     */
+    public static function getConnection() {
+        if (self::$conn === null) {
+            try {
+                $dsn = "mysql:host=" . self::$host . ";dbname=" . self::$db_name . ";charset=utf8mb4";
+                self::$conn = new PDO($dsn, self::$username, self::$password);
+                self::$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            } catch (PDOException $exception) {
+                echo "Lỗi kết nối CSDL: " . $exception->getMessage();
+                exit();
+            }
         }
-        catch (PDOException $e) 
-        {
-            die("Kết nối database thất bại: " . $e->getMessage());
-        }
-    }
-
-    public static function getInstance() 
-    {
-        if (self::$instance === null) 
-        {
-            self::$instance = new Database();
-        }
-        return self::$instance->conn;
+        return self::$conn;
     }
 }

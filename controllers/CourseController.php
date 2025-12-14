@@ -1,183 +1,66 @@
 <?php
 // controllers/CourseController.php
 
-require_once dirname(__DIR__) . '/config/Database.php';
-require_once dirname(__DIR__) . '/models/Course.php';
-require_once dirname(__DIR__) . '/models/Enrollment.php';  // cần cho phần student
+require_once 'models/Course.php';
+require_once 'models/Category.php';
+require_once 'models/Enrollment.php';
+// Giả định có View class để render
+// require_once 'core/View.php'; 
 
 class CourseController {
-    private $db;
-    private $courseModel;
+    public function index() {
+        $courseModel = new Course();
+        $categoryModel = new Category();
 
-    public function __construct() {
-        session_start();  // Bật session (cần thiết cho cả instructor và student)
+        // 1. Lấy tham số tìm kiếm và lọc
+        $search = $_GET['search'] ?? null;
+        $category_id = $_GET['category_id'] ?? null;
 
-        $this->db = Database::getInstance();
-        $this->courseModel = new Course($this->db);
-    }
+        // 2. Lấy dữ liệu
+        $courses = $courseModel->getAllCourses($search, $category_id);
+        $categories = $categoryModel->getAllCategories();
 
-    // ==================== PHẦN GIẢNG VIÊN (Instructor) ====================
-
-    // Danh sách khóa học của giảng viên
-    public function myCourses() {
-        // Kiểm tra role giảng viên
-        if (!isset($_SESSION['role']) || $_SESSION['role'] != 1) {
-            header('Location: ../views/auth/login.php');
-            exit();
-        }
-
-        $courses = $this->courseModel->getMyCourses($_SESSION['user_id']);
-        require dirname(__DIR__) . '/views/instructor/my_courses.php';
-    }
-
-    public function create() {
-        if ($_SESSION['role'] != 1) {
-            header('Location: ../views/auth/login.php');
-            exit();
-        }
-
-        $stmt = $this->db->query("SELECT * FROM categories ORDER BY name");
-        $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        require dirname(__DIR__) . '/views/instructor/course/create.php';
-    }
-
-    public function store() {
-        if ($_SESSION['role'] != 1 || $_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ../views/auth/login.php');
-            exit();
-        }
-
+        // 3. Truyền dữ liệu ra View
         $data = [
-            'title'          => trim($_POST['title']),
-            'description'    => trim($_POST['description']),
-            'category_id'    => (int)$_POST['category_id'],
-            'price'          => (float)$_POST['price'],
-            'duration_weeks' => (int)$_POST['duration_weeks'],
-            'level'          => $_POST['level'],
-            'image'          => 'default.jpg'
+            'courses' => $courses,
+            'categories' => $categories,
+            'current_search' => $search,
+            'current_category_id' => $category_id
         ];
 
-        if ($this->courseModel->create($data, $_SESSION['user_id'])) {
-            $_SESSION['success'] = 'Tạo khóa học thành công!';
-        } else {
-            $_SESSION['error'] = 'Tạo khóa học thất bại!';
-        }
-
-        header('Location: ../instructor/dashboard.php');
-        exit();
+        // Giả định hàm View::render sẽ tải view và truyền data
+        // View::render('courses/index', $data);
+        include 'views/courses/index.php';
     }
 
-    public function edit($id) {
-        if ($_SESSION['role'] != 1) {
-            header('Location: ../views/auth/login.php');
-            exit();
-        }
-
-        $course = $this->courseModel->getById($id, $_SESSION['user_id']);
+    public function detail($id) {
+        $courseModel = new Course();
+        $enrollmentModel = new Enrollment();
+        $student_id = $_SESSION['user_id'] ?? null; 
+        
+        // 1. Lấy chi tiết khóa học và bài học
+        $course = $courseModel->getCourseDetail($id);
+        $lessons = $courseModel->getLessonsByCourse($id);
+        
         if (!$course) {
-            $_SESSION['error'] = 'Không tìm thấy khóa học hoặc bạn không có quyền!';
-            header('Location: ../instructor/dashboard.php');
-            exit();
+            // Chuyển hướng hoặc hiển thị lỗi 404
+            // header('Location: /404'); exit;
         }
 
-        $stmt = $this->db->query("SELECT * FROM categories ORDER BY name");
-        $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        require dirname(__DIR__) . '/views/instructor/course/edit.php';
-    }
-
-    public function update($id) {
-        if ($_SESSION['role'] != 1 || $_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ../views/auth/login.php');
-            exit();
-        }
-
-        $data = [
-            'title'          => trim($_POST['title']),
-            'description'    => trim($_POST['description']),
-            'category_id'    => (int)$_POST['category_id'],
-            'price'          => (float)$_POST['price'],
-            'duration_weeks' => (int)$_POST['duration_weeks'],
-            'level'          => $_POST['level'],
-            'image'          => 'default.jpg'
-        ];
-
-        if ($this->courseModel->update($id, $data, $_SESSION['user_id'])) {
-            $_SESSION['success'] = 'Cập nhật thành công!';
-        } else {
-            $_SESSION['error'] = 'Cập nhật thất bại!';
-        }
-
-        header('Location: ../instructor/dashboard.php');
-        exit();
-    }
-
-    public function delete($id) {
-        if ($_SESSION['role'] != 1) {
-            header('Location: ../views/auth/login.php');
-            exit();
-        }
-
-        if ($this->courseModel->delete($id, $_SESSION['user_id'])) {
-            $_SESSION['success'] = 'Xóa khóa học thành công!';
-        } else {
-            $_SESSION['error'] = 'Xóa thất bại hoặc bạn không có quyền!';
-        }
-
-        header('Location: ../instructor/dashboard.php');
-        exit();
-    }
-
-    // ==================== PHẦN HỌC VIÊN & PUBLIC (Student/Public) ====================
-
-    // Danh sách khóa học công khai (public + tìm kiếm + lọc)
-    public function publicIndex() {
-        $search = $_GET['search'] ?? '';
-        $category_id = $_GET['category'] ?? null;
-
-        $courses = $this->courseModel->getAllCourses($search, $category_id);
-
-        $stmt = $this->db->query("SELECT * FROM categories ORDER BY name");
-        $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        require dirname(__DIR__) . '/views/courses/index.php';
-    }
-
-    // Chi tiết khóa học công khai
-    public function publicDetail($id = null) {
-        $id = $id ?? $_GET['id'] ?? 0;
-        if ($id <= 0) {
-            $_SESSION['error'] = 'ID khóa học không hợp lệ!';
-            header('Location: publicIndex.php');
-            exit();
-        }
-
-        $course = $this->courseModel->getDetail($id);
-        if (!$course) {
-            $_SESSION['error'] = 'Khóa học không tồn tại hoặc chưa được duyệt!';
-            header('Location: publicIndex.php');
-            exit();
-        }
-
-        $enrolled_count = $this->courseModel->countEnrollments($id);
-        $lesson_count = $this->courseModel->countLessons($id);
-
+        // 2. Kiểm tra trạng thái đăng ký
         $is_enrolled = false;
-        if (isset($_SESSION['user_id']) && $_SESSION['role'] == 0) {
-            $enrollmentModel = new Enrollment($this->db);
-            $is_enrolled = $enrollmentModel->isEnrolled($id, $_SESSION['user_id']);
+        if ($student_id && $_SESSION['user_role'] == 0) {
+            $is_enrolled = $enrollmentModel->isEnrolled($id, $student_id);
         }
 
-        require dirname(__DIR__) . '/views/courses/detail.php';
-    }
-    public function dashboard() {
-    if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 0) {
-        header('Location: /auth/login');
-        exit;
-    }
+        // 3. Truyền dữ liệu ra View
+        $data = [
+            'course' => $course,
+            'lessons' => $lessons,
+            'is_enrolled' => $is_enrolled
+        ];
 
-    require 'app/views/student/dashboard.php';
+        // View::render('courses/detail', $data);
+        include 'views/courses/detail.php';
+    }
 }
-}
-?>
