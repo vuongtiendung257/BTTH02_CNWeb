@@ -16,6 +16,7 @@
     </style>
 </head>
 <body>
+    <?php require_once __DIR__ . '/../layouts/header.php'; ?>
     <h2>Đăng ký tài khoản</h2>
 
     <?php if (isset($_GET['error'])): ?>
@@ -25,7 +26,7 @@
     <?php endif; ?>
 
     <?php if (isset($_GET['success'])): ?>
-        <p class="success">Đăng ký thành công! Vui lòng <a href="/login">đăng nhập</a>.</p>
+        <p class="success">Đăng ký thành công! Vui lòng <a href="index.php?page=login">đăng nhập</a>.</p>
     <?php endif; ?>
 
     <form action="index.php?page=register" method="POST">
@@ -57,6 +58,7 @@
         <button type="submit">Đăng ký</button>
     </form>
 
-    <p>Đã có tài khoản? <a href="/login">Đăng nhập</a></p>
+    <p>Đã có tài khoản? <a href="index.php?page=login">Đăng nhập</a></p>
+    <?php require_once __DIR__ . '/../layouts/footer.php'; ?>
 </body>
 </html>
