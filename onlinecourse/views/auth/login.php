@@ -13,7 +13,29 @@
     </style>
 </head>
 <body>
-    <?php require_once __DIR__ . '/../layouts/header.php'; ?>
+<?php
+    // CHẶN NGƯỜI ĐÃ ĐĂNG NHẬP
+    if (isset($_SESSION['user_id'])) 
+        {
+            header("Location: index.php?page=home"); 
+            exit; 
+        switch ($_SESSION['role']) {
+            case 0:
+                header("Location: index.php?page=student/dashboard");
+                break;
+            case 1:
+                header("Location: index.php?page=instructor/dashboard");
+                break;
+            case 2:
+                header("Location: index.php?page=admin/dashboard");
+                break;
+        }
+        exit;
+    }
+
+
+    ?>
+    
     <h2>Đăng nhập</h2>
 
     <?php if (isset($_GET['error'])): ?>
@@ -23,7 +45,7 @@
     <form action="index.php?page=login" method="POST">
         <div class="form-group">
             <label>Email hoặc Tên đăng nhập</label>
-            <input type="text" name="login" required placeholder="Email hoặc username">
+            <input type="text" name="login" required placeholder="Email hoặc username" required>
         </div>
 
         <div class="form-group">
@@ -35,6 +57,6 @@
     </form>
 
     <p>Chưa có tài khoản? <a href="index.php?page=register">Đăng ký</a></p>
-    <?php require_once __DIR__ . '/../layouts/footer.php'; ?>
+
 </body>
 </html>
