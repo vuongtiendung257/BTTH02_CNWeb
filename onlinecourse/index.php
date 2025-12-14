@@ -86,11 +86,7 @@ switch ($page) {
     |--------------------------------------------------------------------------
     */
     case 'instructor/dashboard':
-        requireRole(1);
-        require_once __DIR__ . '/views/layouts/header.php';
-        echo "<h2>Dashboard Giảng viên</h2>";
-        echo "<p>Xin chào " . htmlspecialchars($_SESSION['fullname']) . "!</p>";
-        require_once __DIR__ . '/views/layouts/footer.php';
+        header("Location: views/instructor/dashboard.php");
         break;
 
     /*

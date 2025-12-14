@@ -41,7 +41,7 @@ if (!empty($hideHeader)) return;
             <a href="index.php?page=student/my_courses">Khóa học của tôi</a>
 
         <?php elseif ($_SESSION['role'] == 1): ?>
-            <a href="index.php?page=instructor/dashboard">Dashboard Giảng viên</a>
+            <a href="dashboard.php">Dashboard Giảng viên</a>
             <a href="index.php?page=instructor/my_courses">Quản lý khóa học</a>
 
         <?php elseif ($_SESSION['role'] == 2): ?>
