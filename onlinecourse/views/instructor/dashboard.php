@@ -1,28 +1,26 @@
 <?php
-// views/instructor/dashboard.php - Trang dashboard + router cho giảng viên
+// views/instructor/dashboard.php
 
 session_start();
 
-// Giả lập đăng nhập giảng viên (sẽ bỏ khi có Auth thật)
+// Kiểm tra quyền truy cập giảng viên
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 1) {
-    $_SESSION['user_id'] = 4;  // gv_tuan
-    $_SESSION['role'] = 1;
-    $_SESSION['fullname'] = 'Nguyễn Văn Tuấn';
-}
-
-// Xử lý logout
-if (isset($_GET['action']) && $_GET['action'] === 'logout') {
-    session_destroy();
-    header('Location: dashboard.php');
+    // Nếu chưa đăng nhập hoặc không phải giảng viên → về login
+    header("Location: ../../index.php?page=login");
     exit();
 }
 
-require_once '../../controllers/CourseController.php';
+// XỬ LÝ ĐĂNG XUẤT: Chuyển về router chính để logout sạch
+if (isset($_GET['action']) && $_GET['action'] === 'logout') {
+    header("Location: ../../index.php?page=logout");
+    exit();
+}
 
+// Các require controller như cũ
+require_once '../../controllers/CourseController.php';
 $controller = new CourseController();
 
 require_once '../../controllers/LessonController.php';
-
 $lessonController = new LessonController();
 
 require_once '../../controllers/MaterialController.php';
