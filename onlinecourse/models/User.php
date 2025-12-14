@@ -10,6 +10,7 @@ class User
     public function __construct() 
     {
         $this->db = Database::getInstance();
+        
     }
 
     // Kiểm tra email đã tồn tại chưa

@@ -8,9 +8,21 @@ if (!empty($hideHeader)) return;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Website Quản lý Khóa học Online</title>
-
-    <!-- CSS -->
-    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f4f4; }
+        header { background: #333; color: white; padding: 15px; text-align: center; }
+        nav { background: #444; padding: 10px; }
+        nav a { color: white; margin: 0 15px; text-decoration: none; }
+        nav a:hover { text-decoration: underline; }
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .logout { float: right; }
+    </style>
 </head>
 <body>
 
