@@ -1,0 +1,203 @@
+/* ======================
+   AUTH LAYOUT (GRAY THEME)
+====================== */
+
+body.auth-page {
+    min-height: 100vh;
+    font-family: 'Segoe UI', sans-serif;
+    background: url("../images/blue_sky.jpg") center/cover no-repeat;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Wrapper */
+.auth-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Main box */
+.auth-container {
+    display: flex;
+    width: 900px;
+    max-width: 95%;
+    background: #f5f5f5;
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+}
+
+/* ======================
+   LEFT: FORM
+====================== */
+
+.auth-form {
+    width: 50%;
+    padding: 40px;
+    background: #ffffff;
+}
+
+/* Title */
+.auth-title {
+    font-size: 26px;
+    font-weight: 800;
+    color: #444;
+    text-align: center;
+    margin-bottom: 25px;
+    position: relative;
+}
+
+.auth-title::after {
+    content: "";
+    width: 50px;
+    height: 4px;
+    background: #777;
+    display: block;
+    margin: 10px auto 0;
+    border-radius: 10px;
+}
+
+/* Inputs */
+.form-group {
+    position: relative;
+    margin-bottom: 22px;
+}
+
+.form-group input {
+    width: 100%;
+    height: 50px;
+    padding: 14px 45px 14px 16px;
+    border-radius: 12px;
+    border: 1.5px solid #ccc;
+    outline: none;
+    font-size: 15px;
+    transition: 0.3s;
+}
+
+.form-group input:focus {
+    border-color: #666;
+    box-shadow: 0 0 0 3px rgba(100,100,100,0.15);
+}
+
+/* Floating label */
+.form-group label {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #fff;
+    padding: 0 6px;
+    color: #888;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.form-group input:focus + label,
+.form-group input:valid + label {
+    top: -8px;
+    font-size: 12px;
+    color: #555;
+    font-weight: 600;
+}
+
+/* Icon inside input */
+.input-icon {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #aaa;
+    font-size: 16px;
+}
+
+/* Button */
+.btn-auth {
+    width: 100%;
+    padding: 13px;
+    border-radius: 30px;
+    border: none;
+    background: #666;
+    color: #fff;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.btn-auth:hover {
+    background: #444;
+    transform: scale(1.06);
+}
+
+/* Switch link */
+.auth-link {
+    margin-top: 18px;
+    text-align: center;
+}
+
+.auth-link a {
+    color: #555;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* ======================
+   RIGHT: VISUAL
+====================== */
+
+.auth-visual {
+    width: 50%;
+    background: #eee;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-visual img {
+    width: 80%;
+    max-width: 300px;
+}
+
+.auth-visual-text {
+    position: absolute;
+    bottom: 40px;
+    text-align: center;
+    color: #333;
+}
+
+.auth-visual-text h3 {
+    font-size: 22px;
+    margin-bottom: 6px;
+}
+
+.auth-visual-text p {
+    font-size: 14px;
+}
+
+/* ======================
+   TOGGLE LOGIN / REGISTER
+====================== */
+
+.auth-container.login .register-form {
+    display: none;
+}
+
+.auth-container.login .login-form {
+    display: block;
+}
+
+.login-form {
+    display: none;
+}
+
+/* ======================
+   FOOTER
+====================== */
+
+footer {
+    text-align: center;
+    padding: 15px;
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+}

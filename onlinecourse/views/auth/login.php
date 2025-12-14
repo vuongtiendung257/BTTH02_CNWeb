@@ -1,66 +1,58 @@
-<!-- views/auth/login.php -->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <title>Đăng nhập</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 400px; margin: 80px auto; padding: 20px; }
-        .form-group { margin-bottom: 15px; }
-        input { width: 100%; padding: 10px; box-sizing: border-box; }
-        button { padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; }
-        .error { color: red; }
-    </style>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
-<body>
-<?php
+<body class="auth-page">
+<div class="auth-wrapper">
+    <div class="auth-container" id="authBox">
+        <!-- ================= FORM LOGIN (dùng class register-form để lấy style sẵn có) ================= -->
+        <div class="auth-form register-form">  <!-- ĐỔI THÀNH register-form ĐỂ HIỂN THỊ ĐÚNG -->
+            <h2 class="auth-title">Đăng nhập</h2>
+            
+            <?php if (isset($_GET['error'])): ?>
+                <div class="error-message" style="color: red; margin: 15px 0; text-align: center; font-size: 14px;">
+                    <?= htmlspecialchars(urldecode($_GET['error'])) ?>
+                </div>
+            <?php endif; ?>
 
-    $hideHeader = true;
-    require_once __DIR__ . '/../layouts/header.php';
-    
-    // CHẶN NGƯỜI ĐÃ ĐĂNG NHẬP
-    if (isset($_SESSION['user_id'])) 
-        {
-            header("Location: index.php?page=home"); 
-            exit; 
-        switch ($_SESSION['role']) {
-            case 0:
-                header("Location: index.php?page=student/dashboard");
-                break;
-            case 1:
-                header("Location: index.php?page=instructor/dashboard");
-                break;
-            case 2:
-                header("Location: index.php?page=admin/dashboard");
-                break;
-        }
-        exit;
-    }
-
-
-    ?>
-    
-    <h2>Đăng nhập</h2>
-
-    <?php if (isset($_GET['error'])): ?>
-        <p class="error"><?php echo htmlspecialchars(urldecode($_GET['error'])); ?></p>
-    <?php endif; ?>
-
-    <form action="index.php?page=login" method="POST">
-        <div class="form-group">
-            <label>Email hoặc Tên đăng nhập</label>
-            <input type="text" name="login" required placeholder="Email hoặc username" required>
+            <form action="index.php?page=login" method="POST">
+                <div class="form-group">
+                    <input type="text" name="login" required>
+                    <label>Email hoặc Tên đăng nhập</label>
+                    <span class="input-icon"><i class="fa fa-user"></i></span>
+                </div>
+                <div class="form-group">
+                    <input type="password" name="password" required>
+                    <label>Mật khẩu</label>
+                    <span class="input-icon"><i class="fa fa-lock"></i></span>
+                </div>
+                <button class="btn-auth">Đăng nhập</button>
+            </form>
+            <div class="auth-link">
+                Chưa có tài khoản?
+                <a href="index.php?page=register">Đăng ký</a>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label>Mật khẩu</label>
-            <input type="password" name="password" required>
+        <!-- ================= VISUAL (giữ nguyên như trang đăng ký) ================= -->
+        <div class="auth-visual">
+            <img src="assets/images/chismos.jpg" alt="Study">
+            <div class="auth-visual-text">
+                <h3>Online Course</h3>
+                <p>Học tập mọi lúc, mọi nơi</p>
+            </div>
         </div>
+    </div>
+</div>
 
-        <button type="submit">Đăng nhập</button>
-    </form>
+<footer>
+    © 2025 - Online Course
+</footer>
 
-    <p>Chưa có tài khoản? <a href="index.php?page=register">Đăng ký</a></p>
-
+<script src="assets/js/auth.js"></script>
 </body>
 </html>
