@@ -1,0 +1,135 @@
+/* =========================
+   REGISTER PAGE - FINAL
+   ========================= */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+
+    /* NỀN SÁNG – HỌC TẬP */
+    background-image:
+        linear-gradient(
+            rgba(255, 255, 255, 0.88),
+            rgba(255, 255, 255, 0.88)
+        ),
+        url("/onlinecourse/assets/images/bg-study.jpg");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ===== CONTAINER ĐĂNG KÝ (GIỮ NGUYÊN) ===== */
+.register-card {
+    width: 100%;
+    max-width: 480px;
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 25px 45px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    animation: fadeUp 0.6s ease;
+}
+
+/* Header */
+.register-header {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+    text-align: center;
+    padding: 26px 20px;
+}
+
+.register-header h2 {
+    margin: 0;
+    font-weight: 600;
+}
+
+.register-header p {
+    margin: 6px 0 0;
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+/* Form */
+.form-group {
+    position: relative;
+}
+
+.form-control {
+    height: 46px;
+    padding-left: 42px;
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+.form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.15rem rgba(102, 126, 234, 0.25);
+}
+
+/* Icon trong input */
+.input-group-text {
+    position: absolute;
+    top: 50%;
+    left: 14px;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: #6c757d;
+    font-size: 16px;
+    z-index: 2;
+}
+
+/* Button */
+.btn-register {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border: none;
+    border-radius: 30px;
+    padding: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+.btn-register:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3);
+    opacity: 0.95;
+}
+
+/* Alert */
+.alert {
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+/* Login link */
+.login-link a {
+    text-decoration: none;
+    font-weight: 500;
+    color: #667eea;
+}
+
+.login-link a:hover {
+    text-decoration: underline;
+}
+
+/* Animation */
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(35px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
