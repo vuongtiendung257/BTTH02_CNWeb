@@ -1,76 +1,81 @@
-<?php
-// views/auth/register.php
-?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Đăng ký tài khoản</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 500px; margin: 50px auto; padding: 20px; }
-        .form-group { margin-bottom: 15px; }
-        input { width: 100%; padding: 10px; box-sizing: border-box; }
-        button { padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; }
-        .error { color: red; }
-        .success { color: green; }
-    </style>
+    <title>Đăng ký</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
-<body>
-    <?php
 
-    $hideHeader = true;
-    require_once __DIR__ . '/../layouts/header.php';    
+<body class="auth-page">
 
-    if (isset($_SESSION['user_id'])) 
-        {
-        header("Location: index.php?page=home");
-        exit;
-    }
-    ?>
+<div class="auth-wrapper">
+    <div class="auth-container" id="authBox">
 
+        <!-- ================= FORM REGISTER ================= -->
+        <div class="auth-form register-form">
+            <h2 class="auth-title">Đăng ký tài khoản</h2>
 
-    <h2>Đăng ký tài khoản</h2>
+            <form>
+                <div class="form-group">
+                    <input type="text" required>
+                    <label>Họ và tên</label>
+                    <span class="input-icon"><i class="fa fa-user"></i></span>
+                </div>
 
-    <?php if (isset($_GET['error'])): ?>
-        <p class="error" style="color: red;">
-            <?php echo htmlspecialchars(urldecode($_GET['error'])); ?>
-        </p>
-    <?php endif; ?>
+                <div class="form-group">
+                    <input type="text" required>
+                    <label>Tên đăng nhập</label>
+                    <span class="input-icon"><i class="fa fa-id-badge"></i></span>
+                </div>
 
-    <?php if (isset($_GET['success'])): ?>
-        <p class="success">Đăng ký thành công! Vui lòng <a href="index.php?page=login">đăng nhập</a>.</p>
-    <?php endif; ?>
+                <div class="form-group">
+                    <input type="email" required>
+                    <label>Email</label>
+                    <span class="input-icon"><i class="fa fa-envelope"></i></span>
+                </div>
 
-    <form action="index.php?page=register" method="POST">
-        <div class="form-group">
-            <label>Họ và tên</label>
-            <input type="text" name="fullname" required>
+                <div class="form-group">
+                    <input type="password" required>
+                    <label>Mật khẩu</label>
+                    <span class="input-icon"><i class="fa fa-lock"></i></span>
+                </div>
+
+                <div class="form-group">
+                    <input type="password" required>
+                    <label>Xác nhận mật khẩu</label>
+                    <span class="input-icon"><i class="fa fa-lock"></i></span>
+                </div>
+
+                <button class="btn-auth">Đăng ký</button>
+            </form>
+
+            <div class="auth-link">
+                Đã có tài khoản?
+                <a href="index.php?page=login">Đăng nhập</a>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label>Tên đăng nhập</label>
-            <input type="text" name="username" required>
+        <!-- ================= VISUAL ================= -->
+        <div class="auth-visual">
+            <!-- 📌 ẢNH BÊN PHẢI (minh họa học tập) -->
+            <img src="assets/images/chismos.jpg" alt="Study">
+
+            <div class="auth-visual-text">
+                <h3>Online Course</h3>
+                <p>Học tập mọi lúc, mọi nơi</p>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label>Email</label>
-            <input type="email" name="email" required>
-        </div>
+    </div>
+</div>
 
-        <div class="form-group">
-            <label>Mật khẩu</label>
-            <input type="password" name="password" required>
-        </div>
+<footer>
+    © 2025 - Online Course
+</footer>
 
-        <div class="form-group">
-            <label>Xác nhận mật khẩu</label>
-            <input type="password" name="confirm_password" required>
-        </div>
-
-        <button type="submit">Đăng ký</button>
-    </form>
-
-    <p>Đã có tài khoản? <a href="index.php?page=login">Đăng nhập</a></p>
+<!-- JS -->
+<script src="assets/js/auth.js"></script>
 
 </body>
 </html>
