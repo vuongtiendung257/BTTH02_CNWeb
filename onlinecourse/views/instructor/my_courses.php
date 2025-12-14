@@ -50,7 +50,10 @@
                         <a href="dashboard.php?action=delete&id=<?= $course['id'] ?>" 
                            class="btn btn-sm btn-danger" 
                            onclick="return confirm('Xóa khóa học này? Dữ liệu bài học và tài liệu sẽ mất!')">Xóa</a>
-                        <a href="lessons.php?course_id=<?= $course['id'] ?>" class="btn btn-sm btn-info">Bài học</a>
+                        <a href="dashboard.php?action=lessons_manage&course_id=<?= $course['id'] ?>" 
+                        class="btn btn-sm btn-info">
+                            Quản lý bài học
+                        </a>
                     </td>
                 </tr>
                 <?php endforeach; ?>

@@ -1,36 +1,58 @@
 <?php
-class Material {
+class Lesson {
     private $db;
 
     public function __construct($db) {
         $this->db = $db;
     }
 
-    // Lấy tài liệu theo bài học
-    public function getByLessonId($lesson_id) {
-        $stmt = $this->db->prepare("SELECT * FROM materials WHERE lesson_id = ? ORDER BY uploaded_at DESC");
-        $stmt->execute([$lesson_id]);
+    // Lấy danh sách bài học của một khóa học
+    public function getByCourseId($course_id) {
+        $stmt = $this->db->prepare("SELECT * FROM lessons WHERE course_id = ? ORDER BY `order_num` ASC, id ASC");
+        $stmt->execute([$course_id]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Thêm tài liệu mới
+    // Lấy một bài học
+    public function getById($id) {
+        $stmt = $this->db->prepare("SELECT * FROM lessons WHERE id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // Tạo bài học mới
     public function create($data) {
-        $stmt = $this->db->prepare("INSERT INTO materials 
-            (lesson_id, filename, file_path, file_type, uploaded_at) 
-            VALUES (?, ?, ?, ?, NOW())");
+        $stmt = $this->db->prepare("INSERT INTO lessons 
+            (course_id, title, content, video_url, `order_num`, created_at) 
+            VALUES (?, ?, ?, ?, ?, NOW())");
 
         return $stmt->execute([
-            $data['lesson_id'],
-            $data['filename'],
-            $data['file_path'],
-            $data['file_type']
+            $data['course_id'],
+            $data['title'],
+            $data['content'],
+            $data['video_url'] ?? null,
+            $data['order'] ?? 0
         ]);
     }
 
-    // Xóa tài liệu
+    // Cập nhật bài học
+    public function update($id, $data) {
+        $stmt = $this->db->prepare("UPDATE lessons SET 
+            title = ?, content = ?, video_url = ?, `order_num` = ? 
+            WHERE id = ?");
+
+        return $stmt->execute([
+            $data['title'],
+            $data['content'],
+            $data['video_url'] ?? null,
+            $data['order'] ?? 0,
+            $id
+        ]);
+    }
+
+    // Xóa bài học
     public function delete($id) {
-        // Trước khi xóa DB, nên xóa file thực tế nữa (sẽ làm ở controller)
-        $stmt = $this->db->prepare("DELETE FROM materials WHERE id = ?");
+        $stmt = $this->db->prepare("DELETE FROM lessons WHERE id = ?");
         return $stmt->execute([$id]);
     }
 }

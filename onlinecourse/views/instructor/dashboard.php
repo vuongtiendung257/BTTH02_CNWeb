@@ -21,6 +21,10 @@ require_once '../../controllers/CourseController.php';
 
 $controller = new CourseController();
 
+require_once '../../controllers/LessonController.php';
+
+$lessonController = new LessonController();
+
 $action = $_GET['action'] ?? 'index';
 $id = $_GET['id'] ?? null;
 
@@ -39,6 +43,24 @@ switch ($action) {
         break;
     case 'delete':
         $controller->delete($id);
+        break;
+    case 'lessons_manage':
+        $lessonController->manage($_GET['course_id'] ?? 0);
+        break;
+    case 'lesson_create':
+        $lessonController->create($_GET['course_id'] ?? 0);
+        break;
+    case 'lesson_store':
+        $lessonController->store($_GET['course_id'] ?? 0);
+        break;
+    case 'lesson_edit':
+        $lessonController->edit($_GET['id'] ?? 0);
+        break;
+    case 'lesson_update':
+        $lessonController->update($_GET['id'] ?? 0);
+        break;
+    case 'lesson_delete':
+        $lessonController->delete($_GET['id'] ?? 0);
         break;
     case 'index':
     default:
