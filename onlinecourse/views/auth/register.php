@@ -16,7 +16,15 @@
     </style>
 </head>
 <body>
-    <?php require_once __DIR__ . '/../layouts/header.php'; ?>
+    <?php
+    if (isset($_SESSION['user_id'])) 
+        {
+        header("Location: index.php?page=home");
+        exit;
+    }
+    ?>
+
+
     <h2>Đăng ký tài khoản</h2>
 
     <?php if (isset($_GET['error'])): ?>
@@ -59,6 +67,6 @@
     </form>
 
     <p>Đã có tài khoản? <a href="index.php?page=login">Đăng nhập</a></p>
-    <?php require_once __DIR__ . '/../layouts/footer.php'; ?>
+
 </body>
 </html>
