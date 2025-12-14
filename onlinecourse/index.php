@@ -1,87 +1,119 @@
 <?php
-// index.php - Router đơn giản (hỗ trợ register + login)
+// index.php – Router chính
 
 session_start();
 
+/*
+|--------------------------------------------------------------------------
+| REQUIRE FILES
+|--------------------------------------------------------------------------
+*/
+require_once __DIR__ . '/helpers/auth.php';
 require_once __DIR__ . '/controllers/AuthController.php';
 
-$controller = new AuthController();
+$authController = new AuthController();
 
-if (isset($_GET['page'])) {
-    switch ($_GET['page']) {
-        case 'register':
-            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $controller->register();
-            } else {
-                require_once __DIR__ . '/views/auth/register.php';
-            }
-            break;
+/*
+|--------------------------------------------------------------------------
+| ROUTER
+|--------------------------------------------------------------------------
+*/
+$page = $_GET['page'] ?? 'home';
 
-        case 'login':
-            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $controller->login();      // hàm login sẽ thêm sau
-            } else {
-                require_once __DIR__ . '/views/auth/login.php';
-            }
-            break;
-        
-        case 'home':
+switch ($page) {
+
+    /*
+    |--------------------------------------------------------------------------
+    | AUTH
+    |--------------------------------------------------------------------------
+    */
+    case 'register':
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $authController->register();
+        } else {
+            $hideHeader = true;
             require_once __DIR__ . '/views/layouts/header.php';
-            echo "<h2>Chào mừng đến với hệ thống!</h2>";
-            echo "<p>Đây là trang chủ.</p>";
+            require_once __DIR__ . '/views/auth/register.php';
             require_once __DIR__ . '/views/layouts/footer.php';
-            break;
+        }
+        break;
 
-        case 'logout':
-            session_destroy();
-            header("Location: index.php?page=home");
-            exit;
-        
-            case 'student/dashboard':
-            if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 0) {
-                header("Location: index.php?page=login");
-                exit;
-            }
+    case 'login':
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $authController->login();
+        } else {
+            $hideHeader = true;
             require_once __DIR__ . '/views/layouts/header.php';
-            echo "<h2>Dashboard Học viên</h2>";
-            echo "<p>Xin chào học viên " . htmlspecialchars($_SESSION['fullname']) . "!</p>";
-            echo "<p>Đây là khu vực dành cho học viên.</p>";
+            require_once __DIR__ . '/views/auth/login.php';
             require_once __DIR__ . '/views/layouts/footer.php';
-            break;
+        }
+        break;
 
-        case 'instructor/dashboard':
-            if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 1) {
-                header("Location: index.php?page=login");
-                exit;
-            }
-            require_once __DIR__ . '/views/layouts/header.php';
-            echo "<h2>Dashboard Giảng viên</h2>";
-            echo "<p>Xin chào giảng viên " . htmlspecialchars($_SESSION['fullname']) . "!</p>";
-            echo "<p>Đây là khu vực quản lý khóa học của bạn.</p>";
-            require_once __DIR__ . '/views/layouts/footer.php';
-            break;
+    case 'logout':
+        session_unset();
+        session_destroy();
+        header("Location: index.php?page=login");
+        exit;
 
-        case 'admin/dashboard':
-            if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 2) {
-                header("Location: index.php?page=login");
-                exit;
-            }
-            require_once __DIR__ . '/views/layouts/header.php';
-            echo "<h2>Dashboard Quản trị viên</h2>";
-            echo "<p>Xin chào admin " . htmlspecialchars($_SESSION['fullname']) . "!</p>";
-            echo "<p>Đây là khu vực quản trị hệ thống.</p>";
-            require_once __DIR__ . '/views/layouts/footer.php';
-            break;
+    /*
+    |--------------------------------------------------------------------------
+    | HOME
+    |--------------------------------------------------------------------------
+    */
+    case 'home':
+        require_once __DIR__ . '/views/layouts/header.php';
+        echo "<h2>Chào mừng đến với hệ thống!</h2>";
+        echo "<p>Đây là trang chủ.</p>";
+        require_once __DIR__ . '/views/layouts/footer.php';
+        break;
 
-        default:
-            echo "Trang chủ<br>";
-            echo "<a href='index.php?page=register'>Đăng ký</a> | ";
-            echo "<a href='index.php?page=login'>Đăng nhập</a>";
-            break;
-    }
-} else {
-    // Trang mặc định
-    echo "Trang chủ<br>";
-    echo "<a href='index.php?page=register'>Đăng ký</a> | ";
-    echo "<a href='index.php?page=login'>Đăng nhập</a>";
+    /*
+    |--------------------------------------------------------------------------
+    | STUDENT
+    |--------------------------------------------------------------------------
+    */
+    case 'student/dashboard':
+        requireRole(0);
+        require_once __DIR__ . '/views/layouts/header.php';
+        echo "<h2>Dashboard Học viên</h2>";
+        echo "<p>Xin chào " . htmlspecialchars($_SESSION['fullname']) . "!</p>";
+        require_once __DIR__ . '/views/layouts/footer.php';
+        break;
+
+    /*
+    |--------------------------------------------------------------------------
+    | INSTRUCTOR
+    |--------------------------------------------------------------------------
+    */
+    case 'instructor/dashboard':
+        requireRole(1);
+        require_once __DIR__ . '/views/layouts/header.php';
+        echo "<h2>Dashboard Giảng viên</h2>";
+        echo "<p>Xin chào " . htmlspecialchars($_SESSION['fullname']) . "!</p>";
+        require_once __DIR__ . '/views/layouts/footer.php';
+        break;
+
+    /*
+    |--------------------------------------------------------------------------
+    | ADMIN
+    |--------------------------------------------------------------------------
+    */
+    case 'admin/dashboard':
+        requireRole(2);
+        require_once __DIR__ . '/views/layouts/header.php';
+        echo "<h2>Dashboard Admin</h2>";
+        echo "<p>Xin chào " . htmlspecialchars($_SESSION['fullname']) . "!</p>";
+        require_once __DIR__ . '/views/layouts/footer.php';
+        break;
+
+    /*
+    |--------------------------------------------------------------------------
+    | 404
+    |--------------------------------------------------------------------------
+    */
+    default:
+        require_once __DIR__ . '/views/layouts/header.php';
+        echo "<h2>404 - Trang không tồn tại</h2>";
+        require_once __DIR__ . '/views/layouts/footer.php';
+        break;
 }

@@ -1,7 +1,7 @@
 <?php
-// views/layouts/header.php
-// KHÔNG session_start() ở đây (session đã start trong index.php)
+if (!empty($hideHeader)) return;
 ?>
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
