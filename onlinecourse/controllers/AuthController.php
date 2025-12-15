@@ -69,25 +69,17 @@ class AuthController
 
         if ($this->userModel->register($data)) 
         {
-            // Lấy thông tin user vừa tạo để đăng nhập luôn
-            $user = $this->userModel->findByEmail($email); // hoặc findByUsername
+            // KHÔNG tự động đăng nhập nữa
+            // Chỉ thông báo thành công và chuyển về trang login
+            $_SESSION['success_message'] = "Đăng ký tài khoản thành công! Vui lòng đăng nhập để tiếp tục.";
 
-            // Tạo session đăng nhập ngay lập tức
-            $_SESSION['user_id']   = $user['id'];
-            $_SESSION['username']  = $user['username'];
-            $_SESSION['fullname']  = $user['fullname'];
-            $_SESSION['role']      = $user['role']; // mặc định là 0
-
-            // Thông báo thành công bằng session
-            $_SESSION['success_message'] = "Đăng ký thành công! Chào mừng bạn đến với hệ thống.";
-
-            // Redirect đến dashboard phù hợp với role (mặc định học viên)
-            header("Location: index.php?page=student/dashboard");
+            header("Location: index.php?page=login");
             exit;
         } 
         else 
         {
             $_SESSION['register_errors'] = ["Đăng ký thất bại, vui lòng thử lại sau."];
+            $_SESSION['old_input'] = $_POST;
             header("Location: index.php?page=register");
             exit;
         }
@@ -148,7 +140,6 @@ class AuthController
         exit;
     }
 
-    // Thêm hàm logout nếu chưa có
     public function logout() 
     {
         session_destroy();
