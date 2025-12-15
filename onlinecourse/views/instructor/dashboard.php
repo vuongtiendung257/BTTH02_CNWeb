@@ -3,7 +3,9 @@
 <?php
 // views/instructor/dashboard.php
 
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Kiểm tra quyền truy cập giảng viên
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 1) {
