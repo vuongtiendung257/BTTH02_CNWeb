@@ -67,5 +67,92 @@ class Course {
         $stmt = $this->db->prepare("DELETE FROM courses WHERE id = ? AND instructor_id = ?");
         return $stmt->execute([$id, $instructor_id]);
     }
+     public function getAll() {
+        $stmt = $this->db->query(
+            "SELECT
+                c.*, u.fullname AS instructor_name, cat.name AS category_name
+            FROM courses c
+            JOIN users u ON c.instructor_id = u.id
+            JOIN categories cat ON c.category_id = cat.id
+            WHERE c.status = 'approved'"
+        );
+        return $stmt->fetchAll();
+    }
+
+    // Tìm kiếm khóa học
+    public function search($keyword = '', $categoryId = null)
+    {
+        $sql = "
+            SELECT 
+                c.*,
+                u.fullname AS instructor_name,
+                cat.name AS category_name
+            FROM courses c
+            JOIN users u ON c.instructor_id = u.id
+            JOIN categories cat ON c.category_id = cat.id
+            WHERE c.status = 'approved'
+        ";
+
+        $params = [];
+
+        // Tìm theo từ khóa
+        if (!empty($keyword)) {
+            $sql .= " AND c.title LIKE ? ";
+            $params[] = '%' . $keyword . '%';
+        }
+
+        // Lọc theo danh mục
+        if (!empty($categoryId)) {
+            $sql .= " AND c.category_id = ? ";
+            $params[] = $categoryId;
+        }
+
+        $sql .= " ORDER BY c.created_at DESC";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll();
+    }
+
+
+    public function getCategories() {
+        $stmt = $this->db->query("SELECT * FROM categories ORDER BY name");
+        return $stmt->fetchAll();
+    }
+
+    // Lấy chi tiết khóa học + giảng viên + danh mục
+    // Lấy chi tiết khóa học + giảng viên + danh mục
+    public function getDetailWithLessons($courseId)
+    {
+        // Lấy thông tin khóa học
+        $stmt = $this->db->prepare("
+            SELECT 
+                c.*,
+                u.fullname AS instructor_name,
+                cat.name AS category_name
+            FROM courses c
+            JOIN users u ON c.instructor_id = u.id
+            JOIN categories cat ON c.category_id = cat.id
+            WHERE c.id = ? AND c.status = 'approved'
+        ");
+        $stmt->execute([$courseId]);
+        $course = $stmt->fetch();
+
+        if (!$course) return null;
+
+        // Lấy danh sách bài học
+        $stmtLessons = $this->db->prepare("
+            SELECT id, title, order_num
+            FROM lessons
+            WHERE course_id = ?
+            ORDER BY order_num ASC
+        ");
+        $stmtLessons->execute([$courseId]);
+        $course['lessons'] = $stmtLessons->fetchAll();
+
+        return $course;
+    }
+
+
 }
 ?>

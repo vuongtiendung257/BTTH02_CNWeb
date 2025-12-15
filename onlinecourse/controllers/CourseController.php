@@ -3,6 +3,8 @@
 
 require_once dirname(__DIR__) . '/config/Database.php';
 require_once dirname(__DIR__) . '/models/Course.php';
+require_once dirname(__DIR__) . '/models/Enrollment.php';
+
 
 class CourseController {
     private $db;
@@ -97,5 +99,44 @@ class CourseController {
             header('Location: ../instructor/dashboard.php');
         exit();
     }
+   public function studentDashboard() {
+        $courses = $this->courseModel->getAll();
+        $categories = $this->courseModel->getCategories();
+        require dirname(__DIR__) . '/views/courses/manage.php';
+    }
+
+
+    // Tìm kiếm khóa học (học viên)
+    public function search() {
+        $keyword = $_GET['keyword'] ?? '';
+        $categoryId = $_GET['category_id'] ?? null;
+
+        $courses = $this->courseModel->search($keyword, $categoryId);
+        $categories = $this->courseModel->getCategories();
+
+        require dirname(__DIR__) . '/views/courses/manage.php';
+    }
+
+    // Xem chi tiết khóa học (học viên)
+    // Chi tiết khóa học (học viên)
+    public function detail()
+    {
+        $id = $_GET['id'] ?? null;
+        if (!$id) {
+            header("Location: index.php?page=student/dashboard");
+            exit;
+        }
+
+        $course = $this->courseModel->getDetailWithLessons($id);
+
+        if (!$course) {
+            echo "<p>Khóa học không tồn tại.</p>";
+            return;
+        }
+
+        require dirname(__DIR__) . '/views/courses/detail.php';
+    }
+
+
 }
 ?>

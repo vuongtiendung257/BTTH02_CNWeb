@@ -124,8 +124,8 @@ class AuthController
 
         switch ($user['role']) 
         {
-            case 0:
-                header("Location: index.php?page=student/dashboard");
+            case 0: 
+                header("Location: views/student/dashboard.php");
                 break;
             case 1:
                 header("Location: index.php?page=instructor/dashboard");

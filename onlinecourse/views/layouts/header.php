@@ -31,13 +31,13 @@ if (!empty($hideHeader)) return;
 </header>
 
 <nav>
-    <a href="index.php?page=home">Trang chủ</a>
+    <a href="?page=home">Trang chủ</a>
 
     <?php if (isset($_SESSION['user_id'])): ?>
         <span>Xin chào, <?= htmlspecialchars($_SESSION['fullname']) ?></span>
 
         <?php if ($_SESSION['role'] == 0): ?>
-            <a href="index.php?page=student/dashboard">Dashboard Học viên</a>
+            <a href="?page=student/dashboard">Dashboard Học viên</a>
             <a href="index.php?page=student/my_courses">Khóa học của tôi</a>
 
         <?php elseif ($_SESSION['role'] == 1): ?>
