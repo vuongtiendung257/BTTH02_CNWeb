@@ -13,10 +13,11 @@ class AuthController
     }
 
     public function register() {
+        // Nếu không phải POST thì hiển thị form
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') 
         {
-            header('Location: /register');
-            exit;
+            require_once __DIR__ . '/../views/auth/register.php';
+            return;
         }
 
         $fullname = trim($_POST['fullname'] ?? '');
@@ -24,7 +25,7 @@ class AuthController
         $email    = trim($_POST['email'] ?? '');
         $password = $_POST['password'] ?? '';
         $confirm  = $_POST['confirm_password'] ?? '';
-
+        
         $errors = [];
 
         if (empty($fullname)) $errors[] = "Họ và tên không được để trống";
@@ -34,9 +35,9 @@ class AuthController
         if (empty($password)) $errors[] = "Mật khẩu không được để trống";
         if ($password !== $confirm) $errors[] = "Mật khẩu xác nhận không khớp";
 
+        // Kiểm tra trùng nếu chưa có lỗi validate cơ bản
         if (empty($errors)) 
         {
-            // Kiểm tra trùng username/email
             if ($this->userModel->findByUsername($username))
             {
                 $errors[] = "Tên đăng nhập đã tồn tại";
@@ -49,13 +50,14 @@ class AuthController
 
         if (!empty($errors)) 
         {
-            // Quay lại form kèm lỗi
-            $errorMsg = implode('<br>', $errors);
-            header("Location: index.php?page=register&error=" . urlencode($errorMsg));
+            // Lưu lỗi vào session và quay lại form
+            $_SESSION['register_errors'] = $errors;
+            $_SESSION['old_input'] = $_POST; // để giữ lại dữ liệu đã nhập
+            header("Location: index.php?page=register");
             exit;
         }
 
-        // Hash password và lưu user
+        // Hash password
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
         $data = [
@@ -67,21 +69,36 @@ class AuthController
 
         if ($this->userModel->register($data)) 
         {
-            header("Location: index.php?page=register&success=1");
+            // Lấy thông tin user vừa tạo để đăng nhập luôn
+            $user = $this->userModel->findByEmail($email); // hoặc findByUsername
+
+            // Tạo session đăng nhập ngay lập tức
+            $_SESSION['user_id']   = $user['id'];
+            $_SESSION['username']  = $user['username'];
+            $_SESSION['fullname']  = $user['fullname'];
+            $_SESSION['role']      = $user['role']; // mặc định là 0
+
+            // Thông báo thành công bằng session
+            $_SESSION['success_message'] = "Đăng ký thành công! Chào mừng bạn đến với hệ thống.";
+
+            // Redirect đến dashboard phù hợp với role (mặc định học viên)
+            header("Location: index.php?page=student/dashboard");
+            exit;
         } 
         else 
         {
-            header("Location: index.php?page=register&error=Đăng ký thất bại, vui lòng thử lại");
+            $_SESSION['register_errors'] = ["Đăng ký thất bại, vui lòng thử lại sau."];
+            header("Location: index.php?page=register");
+            exit;
         }
-        exit;
     }
 
     public function login() 
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') 
         {
-            header('Location: index.php?page=login');
-            exit;
+            require_once __DIR__ . '/../views/auth/login.php';
+            return;
         }
 
         $login = trim($_POST['login'] ?? '');
@@ -89,11 +106,11 @@ class AuthController
 
         if (empty($login) || empty($password)) 
         {
-            header("Location: index.php?page=login&error=Email/tên đăng nhập và mật khẩu không được để trống");
+            $_SESSION['login_error'] = "Email/tên đăng nhập và mật khẩu không được để trống";
+            header("Location: index.php?page=login");
             exit;
         }
 
-        // Tìm user theo email hoặc username
         $user = $this->userModel->findByEmail($login);
         if (!$user) 
         {
@@ -102,32 +119,40 @@ class AuthController
 
         if (!$user || !password_verify($password, $user['password'])) 
         {
-            header("Location: index.php?page=login&error=Tài khoản hoặc mật khẩu không đúng");
+            $_SESSION['login_error'] = "Tài khoản hoặc mật khẩu không đúng";
+            header("Location: index.php?page=login");
             exit;
         }
 
-        // Đăng nhập thành công - lưu session
+        // Đăng nhập thành công
         $_SESSION['user_id']   = $user['id'];
         $_SESSION['username']  = $user['username'];
         $_SESSION['fullname']  = $user['fullname'];
         $_SESSION['role']      = $user['role'];
 
-        // Redirect theo role
         switch ($user['role']) 
         {
-            case 0: // Học viên
+            case 0:
                 header("Location: index.php?page=student/dashboard");
                 break;
-            case 1: // Giảng viên
+            case 1:
                 header("Location: index.php?page=instructor/dashboard");
                 break;
-            case 2: // Quản trị viên
+            case 2:
                 header("Location: index.php?page=admin/dashboard");
                 break;
             default:
-                header("Location: index.php?page=login");
+                header("Location: index.php?page=home");
                 break;
         }
+        exit;
+    }
+
+    // Thêm hàm logout nếu chưa có
+    public function logout() 
+    {
+        session_destroy();
+        header("Location: index.php?page=login");
         exit;
     }
 }

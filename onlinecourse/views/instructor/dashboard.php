@@ -1,3 +1,6 @@
+
+#### 3. `views/instructor/dashboard.php` (Đơn giản hóa, loại bỏ logic logout riêng vì header đã fix)
+```php
 <?php
 // views/instructor/dashboard.php
 
@@ -10,11 +13,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 1) {
     exit();
 }
 
-// XỬ LÝ ĐĂNG XUẤT: Chuyển về router chính để logout sạch
-if (isset($_GET['action']) && $_GET['action'] === 'logout') {
-    header("Location: ../../index.php?page=logout");
-    exit();
-}
+// Loại bỏ xử lý logout riêng vì giờ header đã link trực tiếp đến index.php?page=logout
 
 // Các require controller như cũ
 require_once '../../controllers/CourseController.php';

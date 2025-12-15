@@ -49,7 +49,7 @@ if (!empty($hideHeader)) return;
             <a href="index.php?page=admin/users">Quản lý người dùng</a>
         <?php endif; ?>
 
-        <a href="?action=logout" class = "logout">Đăng xuất</a>
+        <a href="/BTTH02_CNWeb/onlinecourse/index.php?page=logout" class="logout">Đăng xuất</a>
     <?php else: ?>
         <a href="index.php?page=login">Đăng nhập</a>
         <a href="index.php?page=register">Đăng ký</a>

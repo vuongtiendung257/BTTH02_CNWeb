@@ -1,3 +1,11 @@
+<?php
+// views/auth/register.php
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -16,38 +24,83 @@
         <div class="auth-form register-form">
             <h2 class="auth-title">Đăng ký tài khoản</h2>
 
-            <form>
+            <!-- Thông báo thành công (hiếm khi hiển thị ở đây vì sẽ auto redirect, nhưng vẫn giữ để an toàn) -->
+            <?php if (isset($_SESSION['success_message'])): ?>
+                <div class="alert alert-success" style="margin-bottom: 20px; border-radius: 8px;">
+                    <i class="fas fa-check-circle"></i>
+                    <?= htmlspecialchars($_SESSION['success_message']) ?>
+                </div>
+                <?php unset($_SESSION['success_message']); ?>
+            <?php endif; ?>
+
+            <!-- Thông báo lỗi -->
+            <?php if (isset($_SESSION['register_errors'])): ?>
+                <div class="alert alert-danger" style="margin-bottom: 20px; border-radius: 8px;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <ul class="mb-0" style="padding-left: 20px; margin-top: 8px;">
+                        <?php foreach ($_SESSION['register_errors'] as $error): ?>
+                            <li><?= htmlspecialchars($error) ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+                <?php unset($_SESSION['register_errors']); ?>
+            <?php endif; ?>
+
+            <form action="index.php?page=register" method="POST">
                 <div class="form-group">
-                    <input type="text" required>
+                    <input 
+                        name="fullname" 
+                        type="text" 
+                        value="<?= htmlspecialchars($_SESSION['old_input']['fullname'] ?? '') ?>"
+                        required
+                    >
                     <label>Họ và tên</label>
                     <span class="input-icon"><i class="fa fa-user"></i></span>
                 </div>
 
                 <div class="form-group">
-                    <input type="text" required>
+                    <input 
+                        name="username" 
+                        type="text" 
+                        value="<?= htmlspecialchars($_SESSION['old_input']['username'] ?? '') ?>"
+                        required
+                    >
                     <label>Tên đăng nhập</label>
                     <span class="input-icon"><i class="fa fa-id-badge"></i></span>
                 </div>
 
                 <div class="form-group">
-                    <input type="email" required>
+                    <input 
+                        name="email" 
+                        type="email" 
+                        value="<?= htmlspecialchars($_SESSION['old_input']['email'] ?? '') ?>"
+                        required
+                    >
                     <label>Email</label>
                     <span class="input-icon"><i class="fa fa-envelope"></i></span>
                 </div>
 
                 <div class="form-group">
-                    <input type="password" required>
+                    <input 
+                        name="password" 
+                        type="password" 
+                        required
+                    >
                     <label>Mật khẩu</label>
                     <span class="input-icon"><i class="fa fa-lock"></i></span>
                 </div>
 
                 <div class="form-group">
-                    <input type="password" required>
+                    <input 
+                        name="confirm_password" 
+                        type="password" 
+                        required
+                    >
                     <label>Xác nhận mật khẩu</label>
                     <span class="input-icon"><i class="fa fa-lock"></i></span>
                 </div>
 
-                <button class="btn-auth">Đăng ký</button>
+                <button type="submit" class="btn-auth">Đăng ký</button>
             </form>
 
             <div class="auth-link">
@@ -76,6 +129,11 @@
 
 <!-- JS -->
 <script src="assets/js/auth.js"></script>
+
+<?php
+// Xóa dữ liệu cũ sau khi đã sử dụng
+unset($_SESSION['old_input']);
+?>
 
 </body>
 </html>
