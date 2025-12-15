@@ -1,6 +1,5 @@
 
-#### 3. `views/instructor/dashboard.php` (Đơn giản hóa, loại bỏ logic logout riêng vì header đã fix)
-```php
+
 <?php
 // views/instructor/dashboard.php
 

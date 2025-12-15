@@ -1,3 +1,9 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -9,15 +15,29 @@
 <body class="auth-page">
 <div class="auth-wrapper">
     <div class="auth-container" id="authBox">
-        <!-- ================= FORM LOGIN (dùng class register-form để lấy style sẵn có) ================= -->
-        <div class="auth-form register-form">  <!-- ĐỔI THÀNH register-form ĐỂ HIỂN THỊ ĐÚNG -->
+        <!-- ================= FORM LOGIN ================= -->
+        <div class="auth-form register-form">
             <h2 class="auth-title">Đăng nhập</h2>
-            
-            <?php if (isset($_GET['error'])): ?>
-                <div class="error-message" style="color: red; margin: 15px 0; text-align: center; font-size: 14px;">
-                    <?= htmlspecialchars(urldecode($_GET['error'])) ?>
+
+            <!-- Thông báo thành công từ đăng ký -->
+            <?php if (isset($_SESSION['success_message'])): ?>
+                <div class="alert alert-success" style="margin-bottom: 20px; border-radius: 8px;">
+                    <i class="fas fa-check-circle"></i>
+                    <?= htmlspecialchars($_SESSION['success_message']) ?>
                 </div>
+                <?php unset($_SESSION['success_message']); ?>
             <?php endif; ?>
+
+            <!-- Thông báo lỗi đăng nhập (nếu có) -->
+            <?php if (isset($_SESSION['login_error'])): ?>
+                <div class="alert alert-danger" style="margin-bottom: 20px; border-radius: 8px;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <?= htmlspecialchars($_SESSION['login_error']) ?>
+                </div>
+                <?php unset($_SESSION['login_error']); ?>
+            <?php endif; ?>
+
+            <!-- Xóa phần cũ dùng $_GET['error'] vì giờ dùng session -->
 
             <form action="index.php?page=login" method="POST">
                 <div class="form-group">
@@ -38,7 +58,7 @@
             </div>
         </div>
 
-        <!-- ================= VISUAL (giữ nguyên như trang đăng ký) ================= -->
+        <!-- ================= VISUAL ================= -->
         <div class="auth-visual">
             <img src="assets/images/chismos.jpg" alt="Study">
             <div class="auth-visual-text">
